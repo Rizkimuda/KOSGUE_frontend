@@ -31,7 +31,7 @@ function Detail() {
           alt={kos.name}
           className="w-full h-full object-cover opacity-80"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent flex items-end pb-12">
+        <div className="absolute inset-0 bg-linear-to-t from-dark/90 via-dark/40 to-transparent flex items-end pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full">
             <Link
               to="/"
@@ -165,7 +165,7 @@ function Detail() {
               {kos.services.map((item) => (
                 <li key={item} className="flex items-center gap-3 text-muted">
                   <svg
-                    className="w-5 h-5 text-gold flex-shrink-0"
+                    className="w-5 h-5 text-gold shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

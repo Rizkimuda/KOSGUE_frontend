@@ -90,7 +90,7 @@ function Home() {
               alt="Hero Background"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-dark/90 to-dark/50"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-dark/90 to-dark/50"></div>
           </div>
 
           <div className="relative z-10 max-w-7xl mx-auto w-full">
@@ -204,7 +204,7 @@ function Home() {
                     className="flex items-center gap-3 text-dark font-medium"
                   >
                     <svg
-                      className="w-5 h-5 text-gold flex-shrink-0"
+                      className="w-5 h-5 text-gold shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -246,7 +246,7 @@ function Home() {
                   key={item.name}
                   className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                  <div className="relative aspect-4/3 overflow-hidden">
                     <img
                       src={item.image}
                       alt={item.name}
