@@ -3,7 +3,49 @@ import { Link } from "react-router-dom";
 function Login() {
   return (
     <div className="min-h-screen grid md:grid-cols-2 font-sans text-dark">
-      <div className="hidden md:flex flex-col justify-between bg-dark p-12 text-white relative overflow-hidden">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link
+            to="/"
+            className="text-2xl font-serif font-bold tracking-tight text-gold"
+          >
+            KosGue
+          </Link>
+          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-white/80">
+            <Link to="/" className="hover:text-gold transition-colors">
+              Beranda
+            </Link>
+            <a href="/#tentang" className="hover:text-gold transition-colors">
+              Tentang
+            </a>
+            <a href="/#featured" className="hover:text-gold transition-colors">
+              Kos Pilihan
+            </a>
+            <a href="/#fasilitas" className="hover:text-gold transition-colors">
+              Fasilitas
+            </a>
+            <a href="/#testimoni" className="hover:text-gold transition-colors">
+              Testimoni
+            </a>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link
+              to="/login"
+              className="text-sm font-medium text-white hover:text-gold transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+            >
+              Daftar
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="hidden md:flex flex-col justify-between bg-dark p-12 text-white relative overflow-hidden pt-32">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1500&q=80')] bg-cover bg-center opacity-40 mix-blend-overlay"></div>
         <div className="relative z-10">
           <span className="inline-block py-1 px-3 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-bold tracking-wide uppercase mb-6">
@@ -23,15 +65,12 @@ function Login() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center p-8 md:p-16 bg-cream">
+      <div className="flex flex-col justify-center p-8 md:p-16 bg-cream pt-32">
         <div className="max-w-md mx-auto w-full">
           <header className="mb-10">
-            <Link
-              to="/"
-              className="text-2xl font-serif font-bold tracking-tight text-gold block mb-2"
-            >
-              KosGue
-            </Link>
+            <h2 className="text-2xl font-serif font-bold tracking-tight text-gold block mb-2">
+              Selamat Datang
+            </h2>
             <p className="text-muted">
               Belum punya akun?{" "}
               <Link
