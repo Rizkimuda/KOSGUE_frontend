@@ -21,7 +21,7 @@ const testimonials = [
     name: "Rafi Hidayat",
     role: "Product Designer",
     message:
-      "KosGue membantu saya menemukan kos dekat kantor dalam waktu singkat. Proses bookingnya simpel dan fasilitasnya sesuai foto.",
+      "KosGue membantu saya menemukan kos dekat kantor dalam waktu singkat. Proses bookingnya simpel banget",
   },
   {
     name: "Anisa Putri",
