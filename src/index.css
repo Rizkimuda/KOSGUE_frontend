@@ -1,48 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
-:root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.6;
-  font-weight: 400;
-  color: #1f1f1f;
-  background-color: #f4f1ec;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  --accent: #d7b989;
-  --text-primary: #1f1f1f;
-  --text-muted: #6b6b6b;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
+/* Global styles are handled by Tailwind CSS */
 body {
   margin: 0;
-  min-height: 100vh;
-  background-color: #f4f1ec;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-button,
-input,
-select {
-  font-family: inherit;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
