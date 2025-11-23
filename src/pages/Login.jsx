@@ -128,9 +128,9 @@ function Login() {
 
           <p className="mt-8 text-xs text-center text-muted leading-relaxed">
             Dengan masuk, kamu menyetujui{" "}
-            <a href="#" className="underline hover:text-dark">
+            <Link to="/terms" className="underline hover:text-dark">
               Syarat & Ketentuan
-            </a>{" "}
+            </Link>{" "}
             serta{" "}
             <a href="#" className="underline hover:text-dark">
               Kebijakan Privasi
