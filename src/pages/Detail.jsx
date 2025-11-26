@@ -1,9 +1,16 @@
 import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import kosList from "../data/kosList";
+import { formatPrice } from "../utils/formatPrice";
 
 function Detail() {
   const { slug } = useParams();
-  const kos = kosList.find((item) => item.slug === slug);
+  const { getKosList } = useAuth();
+  
+  // Combine default kosList with user-added kos
+  const userAddedKos = getKosList ? getKosList() : [];
+  const allKosList = [...kosList, ...userAddedKos];
+  const kos = allKosList.find((item) => item.slug === slug);
 
   if (!kos) {
     return (
@@ -205,7 +212,7 @@ function Detail() {
             <div className="mb-6">
               <p className="text-sm text-muted mb-1">Mulai dari</p>
               <p className="text-3xl font-serif font-bold text-gold">
-                {kos.price}
+                {formatPrice(kos.price)}
               </p>
               <p className="text-xs text-muted mt-2">
                 Harga sudah termasuk listrik, air, dan layanan kebersihan.

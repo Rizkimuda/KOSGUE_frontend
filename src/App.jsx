@@ -3,6 +3,8 @@ import "./App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RegisterOwner from "./pages/RegisterOwner";
+import AddKos from "./pages/AddKos";
 import Detail from "./pages/Detail";
 import Terms from "./pages/Terms";
 import ScrollToTop from "./components/ScrollToTop";
@@ -17,6 +19,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register-owner" element={<RegisterOwner />} />
+          <Route path="/add-kos" element={<AddKos />} />
           <Route path="/kos/:slug" element={<Detail />} />
           <Route path="/terms" element={<Terms />} />
         </Routes>

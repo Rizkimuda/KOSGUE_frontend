@@ -32,6 +32,11 @@ export function AuthProvider({ children }) {
     if (!existingUser) {
       users.push(userData);
       localStorage.setItem("kosgue_registered_users", JSON.stringify(users));
+    } else {
+      // Update existing user
+      const index = users.findIndex((u) => u.email === userData.email);
+      users[index] = userData;
+      localStorage.setItem("kosgue_registered_users", JSON.stringify(users));
     }
   };
 
@@ -66,6 +71,56 @@ export function AuthProvider({ children }) {
     return { success: true };
   };
 
+  const registerAsOwner = (ownerData) => {
+    const registeredUsers = getRegisteredUsers();
+    const currentUser = user;
+    
+    if (!currentUser) {
+      return { success: false, message: "Anda harus login terlebih dahulu." };
+    }
+
+    const updatedUser = {
+      ...currentUser,
+      isOwner: true,
+      ownerInfo: {
+        businessName: ownerData.businessName,
+        businessAddress: ownerData.businessAddress,
+        businessPhone: ownerData.businessPhone,
+        ktpNumber: ownerData.ktpNumber,
+      },
+    };
+
+    // Update user in registered users list
+    const userIndex = registeredUsers.findIndex((u) => u.email === currentUser.email);
+    if (userIndex !== -1) {
+      registeredUsers[userIndex] = updatedUser;
+      localStorage.setItem("kosgue_registered_users", JSON.stringify(registeredUsers));
+    }
+
+    // Update current user state
+    setUser(updatedUser);
+    localStorage.setItem("kosgue_auth", JSON.stringify({ user: updatedUser }));
+
+    return { success: true };
+  };
+
+  const addKos = (kosData) => {
+    const kosList = getKosList();
+    const newKos = {
+      ...kosData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    kosList.push(newKos);
+    localStorage.setItem("kosgue_kos_list", JSON.stringify(kosList));
+    return { success: true, kos: newKos };
+  };
+
+  const getKosList = () => {
+    const stored = localStorage.getItem("kosgue_kos_list");
+    return stored ? JSON.parse(stored) : [];
+  };
+
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
@@ -74,7 +129,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, register, logout }}
+      value={{ isAuthenticated, user, login, register, registerAsOwner, addKos, getKosList, logout }}
     >
       {children}
     </AuthContext.Provider>

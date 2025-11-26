@@ -7,6 +7,7 @@ function UserMenu() {
   const menuRef = useRef(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const isOwner = user?.isOwner || false;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,8 +58,63 @@ function UserMenu() {
           <div className="p-4 bg-gold/10 border-b border-gray-100">
             <p className="font-bold text-dark text-sm">{user?.name || "User"}</p>
             <p className="text-xs text-muted mt-1">{user?.email || ""}</p>
+            {isOwner && (
+              <span className="inline-block mt-2 px-2 py-1 bg-gold text-dark text-xs font-semibold rounded">
+                Pemilik Kos
+              </span>
+            )}
           </div>
-          <div className="p-2">
+          <div className="p-2 space-y-2">
+            {!isOwner && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate("/register-owner");
+                }}
+                className="w-full px-4 py-2.5 text-sm font-semibold text-dark bg-gold rounded-lg hover:bg-[#c5a575] transition-colors flex items-center justify-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                  />
+                </svg>
+                Daftar sebagai Pemilik Kos
+              </button>
+            )}
+            {isOwner && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate("/add-kos");
+                }}
+                className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-dark rounded-lg hover:bg-dark/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+                Tambah Kos
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-dark rounded-lg hover:bg-dark/90 transition-colors flex items-center justify-center gap-2"

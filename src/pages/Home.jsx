@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import UserMenu from "../components/UserMenu";
+import { useMemo } from "react";
 import kosList from "../data/kosList";
+import { formatPrice } from "../utils/formatPrice";
 
 const facilities = [
   {
@@ -40,7 +42,13 @@ const testimonials = [
 ];
 
 function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, getKosList } = useAuth();
+  
+  // Combine default kosList with user-added kos
+  const allKosList = useMemo(() => {
+    const userAddedKos = getKosList ? getKosList() : [];
+    return [...kosList, ...userAddedKos];
+  }, [getKosList]);
 
   return (
     <div className="min-h-screen bg-cream font-sans text-dark">
@@ -251,7 +259,7 @@ function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {kosList.map((item) => (
+              {allKosList.map((item) => (
                 <article
                   key={item.name}
                   className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
@@ -273,7 +281,9 @@ function Home() {
                     <h3 className="text-xl font-serif font-bold text-dark mb-2 group-hover:text-gold transition-colors">
                       {item.name}
                     </h3>
-                    <p className="text-gold font-bold mb-6">{item.price}</p>
+                    <p className="text-gold font-bold mb-6">
+                      {formatPrice(item.price)}
+                    </p>
                     <Link
                       to={`/kos/${item.slug}`}
                       className="block w-full py-3 text-center bg-white text-dark font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
