@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import UserMenu from "../components/UserMenu";
 import kosList from "../data/kosList";
 
 const facilities = [
@@ -38,6 +40,8 @@ const testimonials = [
 ];
 
 function Home() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-cream font-sans text-dark">
       <header className="relative bg-dark">
@@ -67,18 +71,24 @@ function Home() {
               </a>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                to="/login"
-                className="text-sm font-medium text-white hover:text-gold transition-colors"
-              >
-                Masuk
-              </Link>
-              <Link
-                to="/register"
-                className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
-              >
-                Daftar
-              </Link>
+              {isAuthenticated ? (
+                <UserMenu />
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-white hover:text-gold transition-colors"
+                  >
+                    Masuk
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+                  >
+                    Daftar
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </nav>
