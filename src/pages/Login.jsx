@@ -12,6 +12,9 @@ function Login() {
             KosGue
           </Link>
           <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-white/80">
+            <Link to="/browse" className="hover:text-gold transition-colors">
+              Browse Kos
+            </Link>
             <Link to="/" className="hover:text-gold transition-colors">
               Beranda
             </Link>
