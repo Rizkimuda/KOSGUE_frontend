@@ -1,6 +1,57 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import UserMenu from "../components/UserMenu";
+import { useState } from "react";
 
 function Register() {
+  const navigate = useNavigate();
+  const { register, isAuthenticated } = useAuth();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Kata sandi tidak cocok. Silakan cek kembali.");
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 8) {
+      setError("Kata sandi minimal 8 karakter.");
+      return;
+    }
+
+    const userData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password, // Store password for future validation
+    };
+
+    const result = register(userData);
+    
+    if (result.success) {
+      navigate("/");
+    } else {
+      setError(result.message);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(""); // Clear error when user types
+  };
+
   return (
     <div className="h-screen flex flex-col font-sans text-dark">
       <nav className="z-50 bg-dark/95 backdrop-blur-md border-b border-white/10 shrink-0">
@@ -29,18 +80,24 @@ function Register() {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <Link
-              to="/login"
-              className="text-sm font-medium text-white hover:text-gold transition-colors"
-            >
-              Masuk
-            </Link>
-            <Link
-              to="/register"
-              className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
-            >
-              Daftar
-            </Link>
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-white hover:text-gold transition-colors"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+                >
+                  Daftar
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -103,22 +160,35 @@ function Register() {
               </p>
             </header>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-dark">
                   Nama lengkap
                 </label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   placeholder="Nama kamu"
                   required
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+                  className={`w-full p-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all ${
+                    error ? "border-red-300" : "border-gray-200"
+                  }`}
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-dark">Email</label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="nama@email.com"
                   required
                   className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
@@ -130,6 +200,9 @@ function Register() {
                 </label>
                 <input
                   type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   placeholder="08xxxxxxxxxx"
                   required
                   className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
@@ -141,6 +214,9 @@ function Register() {
                 </label>
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="Minimal 8 karakter"
                   required
                   className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
@@ -152,6 +228,9 @@ function Register() {
                 </label>
                 <input
                   type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   placeholder="Ulangi kata sandi"
                   required
                   className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
