@@ -46,24 +46,54 @@ function KosForm() {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, files } = e.target;
+    if (name === "image" && files && files[0]) {
+      setFormData({
+        ...formData,
+        image: files[0],
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...formData,
-      facilities: formData.facilities.split(",").map((item) => item.trim()),
-      services: formData.services.split(",").map((item) => item.trim()),
-      owner: {
-        name: formData.owner_name,
-        phone: formData.owner_phone,
-        whatsapp: formData.owner_whatsapp,
-      },
-    };
+
+    const payload = new FormData();
+    payload.append("slug", formData.slug);
+    payload.append("name", formData.name);
+    payload.append("city", formData.city);
+    payload.append("price", formData.price);
+    payload.append("summary", formData.summary);
+    payload.append("size", formData.size);
+    payload.append("capacity", formData.capacity);
+
+    // Handle image
+    if (formData.image instanceof File) {
+      payload.append("image", formData.image);
+    } else if (formData.image) {
+      payload.append("image", formData.image); // Keep existing URL if not changed
+    }
+
+    // Handle arrays
+    const facilitiesArray = formData.facilities
+      .split(",")
+      .map((item) => item.trim());
+    const servicesArray = formData.services
+      .split(",")
+      .map((item) => item.trim());
+
+    facilitiesArray.forEach((item) => payload.append("facilities[]", item));
+    servicesArray.forEach((item) => payload.append("services[]", item));
+
+    // Handle nested owner object
+    payload.append("owner[name]", formData.owner_name);
+    payload.append("owner[phone]", formData.owner_phone);
+    payload.append("owner[whatsapp]", formData.owner_whatsapp);
 
     try {
       if (isEdit) {
@@ -142,16 +172,26 @@ function KosForm() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              URL Gambar Utama
+              Gambar Utama
             </label>
             <input
-              type="text"
+              type="file"
               name="image"
-              value={formData.image}
               onChange={handleChange}
-              required
+              accept="image/*"
               className="w-full p-2 border rounded"
+              required={!isEdit} // Required only for new kos
             />
+            {formData.image && typeof formData.image === "string" && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-500 mb-1">Gambar saat ini:</p>
+                <img
+                  src={formData.image}
+                  alt="Preview"
+                  className="h-32 object-cover rounded"
+                />
+              </div>
+            )}
           </div>
 
           <div>

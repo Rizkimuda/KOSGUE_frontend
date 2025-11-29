@@ -62,20 +62,32 @@ const getAuthHeaders = () => {
 };
 
 export const createKos = async (data) => {
+  const isFormData = data instanceof FormData;
+  const headers = getAuthHeaders();
+  if (isFormData) {
+    delete headers["Content-Type"];
+  }
+
   const response = await fetch(`${BASE_URL}/kos`, {
     method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
+    headers: headers,
+    body: isFormData ? data : JSON.stringify(data),
   });
   if (!response.ok) throw new Error("Failed to create kos");
   return response.json();
 };
 
 export const updateKos = async (slug, data) => {
+  const isFormData = data instanceof FormData;
+  const headers = getAuthHeaders();
+  if (isFormData) {
+    delete headers["Content-Type"];
+  }
+
   const response = await fetch(`${BASE_URL}/kos/${slug}`, {
     method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
+    headers: headers,
+    body: isFormData ? data : JSON.stringify(data),
   });
   if (!response.ok) throw new Error("Failed to update kos");
   return response.json();

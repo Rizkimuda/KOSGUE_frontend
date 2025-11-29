@@ -24,7 +24,13 @@ const getKosBySlug = async (req, res) => {
 
 const createKos = async (req, res) => {
   try {
-    const newKos = await kosService.createKos(req.body);
+    const kosData = {
+      ...req.body,
+      image: req.file
+        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+        : req.body.image,
+    };
+    const newKos = await kosService.createKos(kosData);
     res.status(201).json(newKos);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -34,7 +40,13 @@ const createKos = async (req, res) => {
 const updateKos = async (req, res) => {
   const { slug } = req.params;
   try {
-    const updatedKos = await kosService.updateKos(slug, req.body);
+    const kosData = {
+      ...req.body,
+      image: req.file
+        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+        : req.body.image,
+    };
+    const updatedKos = await kosService.updateKos(slug, kosData);
     if (!updatedKos) {
       return res.status(404).json({ message: "Kos not found" });
     }
