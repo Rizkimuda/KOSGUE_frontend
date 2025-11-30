@@ -1,0 +1,25 @@
+{
+  "name": "kosgue-(-deploy-)",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix apps/server\" \"npm run dev --prefix apps/client\"",
+    "install-all": "npm install && npm install --prefix apps/server && npm install --prefix apps/client",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rizkimuda/KOSGUE_frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rizkimuda/KOSGUE_frontend/issues"
+  },
+  "homepage": "https://github.com/Rizkimuda/KOSGUE_frontend#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
