@@ -1,5 +1,5 @@
 const pool = require("../apps/server/config/db");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../apps/server/node_modules/bcryptjs");
 
 const kosList = [
   {
