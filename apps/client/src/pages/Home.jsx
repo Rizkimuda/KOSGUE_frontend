@@ -4,37 +4,37 @@ import { getKosList } from "../services/api";
 
 const facilities = [
   {
-    title: "Kamar Luas",
-    description: "Tempat tidur queen, lemari besar, dan meja kerja nyaman.",
+    title: "Pilihan Kos",
+    description: "Para pemilik kos menyediakan kos siap huni dengan berbagai kelengkapan furnitur.",
   },
   {
-    title: "Area Komunal",
-    description: "Ruang santai dengan pantry modern dan kursi empuk.",
+    title: "Fasilitas Umum",
+    description: "Temukan hunian dengan fasilitas penunjang seperti Wi-Fi, dapur, hingga area parkir luas.",
   },
   {
-    title: "Keamanan 24 Jam",
-    description: "Akses kartu, CCTV, serta petugas siap sedia.",
+    title: "Keamanan Terjaga",
+    description: "Cari kos dengan fitur keamanan seperti akses 24 jam, CCTV, atau penjaga kos",
   },
 ];
 
 const testimonials = [
   {
-    name: "Rafi Hidayat",
-    role: "Product Designer",
+    name: "El Fahreza Sufi",
+    role: "Prompt Engineer",
     message:
-      "KosGue membantu saya menemukan kos dekat kantor dalam waktu singkat. Proses bookingnya simpel banget",
+      "KosGue membantu saya menemukan kos dekat kampus dalam waktu singkat. Proses bookingnya simpel banget",
   },
   {
-    name: "Anisa Putri",
-    role: "Mahasiswi",
+    name: "Cristoval",
+    role: "Owner PopDrink Go",
     message:
       "Desain kamarnya cantik banget, cocok buat produktif dan istirahat. Admin kos sangat responsif.",
   },
   {
-    name: "Rio Pratama",
-    role: "Software Engineer",
+    name: "Mas Amba",
+    role: "Influencer Terkenal",
     message:
-      "Aplikasi ini bikin hunting kos jadi seru. Saya bisa lihat review, fasilitas, sampai simulasi biaya sekaligus.",
+      "Aplikasi ini bikin hunting kos jadi seru. Saya bisa lihat review, fasilitas, dan juga adminnya baik.",
   },
 ];
 
@@ -152,13 +152,13 @@ function Home() {
                 #SeriusNyariKos
               </span>
               <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-white leading-[1.1] mb-8">
-                Temukan ruang tinggal terbaik dengan standar hotel,
+                Temukan Kos Idaman Sesuai Budget dan Lokasi Favoritmu,
                 <span className="text-gold block"> kosnya KosGue.</span>
               </h1>
               <p className="text-xl text-white/80 leading-relaxed max-w-2xl mb-12">
-                Dari kamar eksklusif hingga kos harian yang hangat, semua kurasi
-                kami hadir dengan fasilitas moderen, interior estetis, dan
-                kehangatan seperti rumah sendiri.
+                Akses puluhan pilihan kos dari berbagai pemilik properti di satu
+                tempat. Bandingkan harga, cek fasilitas lengkap, dan temukan
+                hunian paling nyaman tanpa perlu survei keliling kota.
               </p>
 
               <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl shadow-black/20 grid md:grid-cols-4 gap-4 items-end">
@@ -212,9 +212,7 @@ function Home() {
                   <p className="text-sm text-white/60 mt-1">Rating penghuni</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-serif font-bold text-white">
-                    2+
-                  </p>
+                  <p className="text-3xl font-serif font-bold text-white">2+</p>
                   <p className="text-sm text-white/60 mt-1">Kota populer</p>
                 </div>
               </div>
@@ -238,19 +236,20 @@ function Home() {
                 Tentang KosGue
               </span>
               <h2 className="text-4xl font-serif font-bold text-dark mt-4 mb-6">
-                Kurasi kos dengan rasa premium untuk gaya hidup modern.
+                Solusi praktis temukan hunian nyaman dalam satu genggaman.
               </h2>
               <p className="text-lg text-muted leading-relaxed mb-8">
-                Tim kami mengunjungi langsung setiap kos untuk memastikan
-                kenyamanan, keamanan, serta estetika interior yang membuatmu
-                betah. Pilih tipe kamar, cek fasilitas, dan pesan langsung dari
-                satu aplikasi.
+                Kami menghubungkan pencari kos dengan ratusan pemilik properti
+                terpercaya. Tak perlu lagi survei keliling kota, cukup gunakan
+                fitur filter canggih kami untuk menemukan lokasi, harga, dan
+                fasilitas yang paling pas dengan kebutuhanmu. Hemat waktu,
+                tenaga, dan biaya.
               </p>
               <ul className="space-y-4">
                 {[
-                  "Interior hangat bernuansa earth tone.",
-                  "Wi-Fi kencang, area komunal, dan layanan cleaning.",
-                  "CS personal yang siap membantu 24/7.",
+                  "Foto dan deskripsi lengkap langsung dari pemilik kos.",
+                  "Filter pencarian detail: lokasi, harga, hingga fasilitas khusus.",
+                  "Kontak langsung dengan pemilik tanpa perantara.",
                 ].map((item, i) => (
                   <li
                     key={i}
@@ -339,10 +338,10 @@ function Home() {
         <section id="fasilitas" className="py-24 bg-dark text-white">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <span className="text-gold font-bold tracking-wide uppercase text-sm">
-              Fasilitas Andalan
+              Cari yang kamu butuhkan
             </span>
             <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3 mb-16">
-              Kami pastikan setiap kos lengkap dan siap huni.
+              Lengkap atau Sederhana? Kamu yang Tentukan Pilihannya.
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {facilities.map((item) => (
@@ -369,7 +368,7 @@ function Home() {
                 Cerita Penghuni
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-dark mt-3">
-                Testimoni hangat dari komunitas KosGue.
+                Testimoni hangat dari pengguna KosGue.
               </h2>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -402,15 +401,15 @@ function Home() {
               Siap pindah?
             </span>
             <h2 className="text-4xl md:text-5xl font-serif font-bold mt-4 mb-6">
-              Tinggal pilih kos, kami bantu urus sisanya.
+              Jangan tunda lagi, temukan kos impianmu sekarang.
             </h2>
             <p className="text-xl text-dark/80 max-w-2xl mx-auto mb-12">
-              Hubungi konsultan KosGue dan dapatkan rekomendasi personal sesuai
-              gaya hidup, budget, dan lokasi impianmu.
+              Akses ratusan data kos secara gratis, bandingkan fasilitasnya, dan
+              hubungi pemilik langsung tanpa perantara.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button className="w-full sm:w-auto px-8 py-4 bg-dark text-white font-bold rounded-full hover:bg-black transition-colors shadow-lg">
-                Hubungi Konsultan
+                Buat Akun Gratis
               </button>
               <button className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark">
                 Eksplor semua kos
