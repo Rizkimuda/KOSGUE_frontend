@@ -44,7 +44,10 @@ const testimonials = [
 
 function Home() {
   const [kosList, setKosList] = useState([]);
+  const [filteredKosList, setFilteredKosList] = useState([]);
   const [user, setUser] = useState(null);
+  const [searchCity, setSearchCity] = useState("");
+  const [searchPrice, setSearchPrice] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -56,6 +59,7 @@ function Home() {
       try {
         const data = await getKosList();
         setKosList(data);
+        setFilteredKosList(data);
       } catch (error) {
         console.error("Error fetching kos list:", error);
       }
@@ -69,6 +73,40 @@ function Home() {
     localStorage.removeItem("user");
     setUser(null);
     window.location.reload();
+  };
+
+  const handleSearch = () => {
+    let results = kosList;
+
+    if (searchCity) {
+      results = results.filter((kos) =>
+        kos.city.toLowerCase().includes(searchCity.toLowerCase())
+      );
+    }
+
+    if (searchPrice) {
+      results = results.filter((kos) => {
+        // Parse price string "Rp 300.000 / bulan" -> 300000
+        const price = parseInt(kos.price.replace(/\D/g, ""));
+
+        if (searchPrice === "<1.5") {
+          return price < 1500000;
+        } else if (searchPrice === "1.5-2") {
+          return price >= 1500000 && price <= 2000000;
+        } else if (searchPrice === ">2") {
+          return price > 2000000;
+        }
+        return true;
+      });
+    }
+
+    setFilteredKosList(results);
+
+    // Scroll to featured section
+    const featuredSection = document.getElementById("featured");
+    if (featuredSection) {
+      featuredSection.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -170,7 +208,11 @@ function Home() {
                   <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
                     Kota
                   </label>
-                  <select className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
+                  <select
+                    value={searchCity}
+                    onChange={(e) => setSearchCity(e.target.value)}
+                    className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  >
                     <option value="">Pilih Kota</option>
                     {CITIES.map((city) => (
                       <option key={city} value={city}>
@@ -181,19 +223,27 @@ function Home() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
-                    Anggaran
+                    Budget
                   </label>
-                  <select className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
-                    <option>&lt; Rp1.500.000</option>
-                    <option>Rp1.500.000 - Rp2.000.000</option>
-                    <option>&gt; Rp2.000.000</option>
+                  <select
+                    value={searchPrice}
+                    onChange={(e) => setSearchPrice(e.target.value)}
+                    className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  >
+                    <option value="">Semua Harga</option>
+                    <option value="<1.5">&lt; Rp1.500.000</option>
+                    <option value="1.5-2">Rp1.500.000 - Rp2.000.000</option>
+                    <option value=">2">&gt; Rp2.000.000</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
                     Tunggu apa lagi
                   </label>
-                  <button className="w-full p-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors text-sm">
+                  <button
+                    onClick={handleSearch}
+                    className="w-full p-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors text-sm"
+                  >
                     Cari Kos
                   </button>
                 </div>
@@ -215,7 +265,7 @@ function Home() {
                   <p className="text-sm text-white/60 mt-1">Rating penghuni</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-serif font-bold text-white">2+</p>
+                  <p className="text-3xl font-serif font-bold text-white">4+</p>
                   <p className="text-sm text-white/60 mt-1">Kota populer</p>
                 </div>
               </div>
@@ -296,38 +346,56 @@ function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {kosList.map((item) => (
-                <article
-                  key={item.name}
-                  className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="relative aspect-4/3 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
-                      {item.rating} ★
+              {filteredKosList.length > 0 ? (
+                filteredKosList.map((item) => (
+                  <article
+                    key={item.name}
+                    className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                  >
+                    <div className="relative aspect-4/3 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
+                        {item.rating} ★
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-sm font-medium text-muted mb-2">
-                      {item.city}
-                    </p>
-                    <h3 className="text-xl font-serif font-bold text-dark mb-2 group-hover:text-gold transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-gold font-bold mb-6">{item.price}</p>
-                    <Link
-                      to={`/kos/${item.slug}`}
-                      className="block w-full py-3 text-center bg-white text-dark font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
-                    >
-                      Detail Kos
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                    <div className="p-6">
+                      <p className="text-sm font-medium text-muted mb-2">
+                        {item.city}
+                      </p>
+                      <h3 className="text-xl font-serif font-bold text-dark mb-2 group-hover:text-gold transition-colors">
+                        {item.name}
+                      </h3>
+                      <p className="text-gold font-bold mb-6">{item.price}</p>
+                      <Link
+                        to={`/kos/${item.slug}`}
+                        className="block w-full py-3 text-center bg-white text-dark font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+                      >
+                        Detail Kos
+                      </Link>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-xl text-muted">
+                    Tidak ada kos yang sesuai dengan kriteria pencarian.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchCity("");
+                      setSearchPrice("");
+                      setFilteredKosList(kosList);
+                    }}
+                    className="mt-4 text-gold font-bold hover:underline"
+                  >
+                    Reset Pencarian
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="mt-12 text-center md:hidden">
