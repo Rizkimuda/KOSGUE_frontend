@@ -171,14 +171,18 @@ function Detail() {
               Fasilitas Kamar
             </h2>
             <div className="flex flex-wrap gap-3">
-              {kos.facilities.map((item) => (
-                <span
-                  key={item}
-                  className="px-4 py-2 bg-cream text-dark rounded-lg font-medium text-sm border border-gold/20"
-                >
-                  {item}
-                </span>
-              ))}
+              {kos.facilities && kos.facilities.length > 0 ? (
+                kos.facilities.map((item) => (
+                  <span
+                    key={item}
+                    className="px-4 py-2 bg-cream text-dark rounded-lg font-medium text-sm border border-gold/20"
+                  >
+                    {item}
+                  </span>
+                ))
+              ) : (
+                <p className="text-muted italic">Tidak ada data fasilitas.</p>
+              )}
             </div>
           </section>
 
@@ -186,42 +190,50 @@ function Detail() {
             <h2 className="text-2xl font-serif font-bold text-dark mb-6">
               Layanan Tambahan
             </h2>
-            <ul className="grid sm:grid-cols-2 gap-4">
-              {kos.services.map((item) => (
-                <li key={item} className="flex items-center gap-3 text-muted">
-                  <svg
-                    className="w-5 h-5 text-gold shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {kos.services && kos.services.length > 0 ? (
+              <ul className="grid sm:grid-cols-2 gap-4">
+                {kos.services.map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-muted">
+                    <svg
+                      className="w-5 h-5 text-gold shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted italic">Tidak ada data layanan.</p>
+            )}
           </section>
 
           <section>
             <h2 className="text-2xl font-serif font-bold text-dark mb-6">
               Galeri
             </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {kos.gallery.map((url) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt={kos.name}
-                  className="w-full h-64 object-cover rounded-xl shadow-sm hover:shadow-md transition-shadow"
-                />
-              ))}
-            </div>
+            {kos.gallery && kos.gallery.length > 0 ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {kos.gallery.map((url) => (
+                  <img
+                    key={url}
+                    src={url}
+                    alt={kos.name}
+                    className="w-full h-64 object-cover rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted italic">Belum ada galeri foto.</p>
+            )}
           </section>
         </div>
 
@@ -247,28 +259,43 @@ function Detail() {
               </p>
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-cream rounded-full flex items-center justify-center text-xl font-bold text-gold border border-gold/20">
-                  {kos.owner.name.charAt(0)}
+                  {kos.owner?.name ? kos.owner.name.charAt(0) : "?"}
                 </div>
                 <div>
-                  <h3 className="font-bold text-dark">{kos.owner.name}</h3>
-                  <p className="text-sm text-muted">{kos.owner.phone}</p>
+                  <h3 className="font-bold text-dark">
+                    {kos.owner?.name || "Tanpa Nama"}
+                  </h3>
+                  <p className="text-sm text-muted">
+                    {kos.owner?.phone || "-"}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <a
-                  href={`tel:${kos.owner.phone}`}
-                  className="flex items-center justify-center py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-muted hover:bg-gray-50 transition-colors"
-                >
-                  Telepon
-                </a>
-                <a
-                  href={kos.owner.whatsapp}
-                  className="flex items-center justify-center py-2.5 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  WhatsApp
-                </a>
+                {kos.owner?.phone && (
+                  <a
+                    href={`tel:${kos.owner.phone}`}
+                    className="flex items-center justify-center py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-muted hover:bg-gray-50 transition-colors"
+                  >
+                    Telepon
+                  </a>
+                )}
+                {kos.owner?.whatsapp ? (
+                  <a
+                    href={kos.owner.whatsapp}
+                    className="flex items-center justify-center py-2.5 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                ) : (
+                  <button
+                    disabled
+                    className="flex items-center justify-center py-2.5 bg-gray-300 text-white rounded-lg text-sm font-bold cursor-not-allowed"
+                  >
+                    WhatsApp
+                  </button>
+                )}
               </div>
             </div>
           </div>

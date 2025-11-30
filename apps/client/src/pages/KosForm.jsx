@@ -14,7 +14,8 @@ function KosForm() {
     price: "",
     image: "",
     summary: "",
-    size: "",
+    width: "",
+    length: "",
     capacity: "",
     facilities: "",
     services: "",
@@ -29,11 +30,53 @@ function KosForm() {
     }
   }, [slug]);
 
+  // Auto-generate slug from name
+  useEffect(() => {
+    if (!isEdit && formData.name) {
+      const generatedSlug =
+        formData.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "") +
+        "-" +
+        Date.now().toString().slice(-4);
+      setFormData((prev) => ({ ...prev, slug: generatedSlug }));
+    }
+  }, [formData.name, isEdit]);
+
   const fetchData = async () => {
     try {
       const data = await getKosBySlug(slug);
+
+      // Parse size "3 x 4 M" -> width=3, length=4
+      let width = "";
+      let length = "";
+      if (data.size) {
+        const match = data.size.match(/(\d+)\s*x\s*(\d+)/);
+        if (match) {
+          width = match[1];
+          length = match[2];
+        }
+      }
+
+      // Parse price "Rp 300.000 / bulan" -> 300000
+      let price = data.price;
+      if (typeof price === "string") {
+        price = price.replace(/\D/g, "");
+      }
+
+      // Parse capacity "2 orang" -> 2
+      let capacity = data.capacity;
+      if (typeof capacity === "string") {
+        capacity = capacity.replace(/\D/g, "");
+      }
+
       setFormData({
         ...data,
+        price: price,
+        width: width,
+        length: length,
+        capacity: capacity,
         facilities: data.facilities?.join(", ") || "",
         services: data.services?.join(", ") || "",
         owner_name: data.owner?.name || "",
@@ -67,10 +110,22 @@ function KosForm() {
     payload.append("slug", formData.slug);
     payload.append("name", formData.name);
     payload.append("city", formData.city);
-    payload.append("price", formData.price);
+
+    // Format Price: Rp 300.000 / bulan
+    const formattedPrice = `Rp ${parseInt(formData.price).toLocaleString(
+      "id-ID"
+    )} / bulan`;
+    payload.append("price", formattedPrice);
+
     payload.append("summary", formData.summary);
-    payload.append("size", formData.size);
-    payload.append("capacity", formData.capacity);
+
+    // Format Size: 3 x 3 M
+    const formattedSize = `${formData.width} x ${formData.length} M`;
+    payload.append("size", formattedSize);
+
+    // Format Capacity: 1 orang
+    const formattedCapacity = `${formData.capacity} orang`;
+    payload.append("capacity", formattedCapacity);
 
     // Handle image
     if (formData.image instanceof File) {
@@ -108,29 +163,39 @@ function KosForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold mb-6">
-          {isEdit ? "Edit Kos" : "Tambah Kos Baru"}
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Slug (URL Unik)
-              </label>
-              <input
-                type="text"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange}
-                disabled={isEdit}
-                required
-                className="w-full p-2 border rounded"
+    <div className="min-h-screen bg-[#fdfbf7] text-[#1a1a1a] p-8 font-sans">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-10">
+        <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-6">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-[#1a1a1a]">
+              {isEdit ? "Edit Data Kos" : "Tambah Kos Baru"}
+            </h1>
+            <p className="text-gray-500 mt-2">
+              Lengkapi informasi properti dengan detail.
+            </p>
+          </div>
+          <div className="h-12 w-12 rounded-full bg-[#fdfbf7] flex items-center justify-center">
+            <svg
+              className="w-6 h-6 text-[#d4af37]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            </svg>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Informasi Dasar */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="col-span-2">
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                 Nama Kos
               </label>
               <input
@@ -139,11 +204,13 @@ function KosForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border rounded"
+                placeholder="Contoh: Kos Melati Indah"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                 Kota / Lokasi
               </label>
               <input
@@ -152,121 +219,208 @@ function KosForm() {
                 value={formData.city}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border rounded"
+                placeholder="Contoh: Jakarta Selatan"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Harga
-              </label>
-              <input
-                type="text"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                className="w-full p-2 border rounded"
-              />
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Gambar Utama
-            </label>
-            <input
-              type="file"
-              name="image"
-              onChange={handleChange}
-              accept="image/*"
-              className="w-full p-2 border rounded"
-              required={!isEdit} // Required only for new kos
-            />
-            {formData.image && typeof formData.image === "string" && (
-              <div className="mt-2">
-                <p className="text-sm text-gray-500 mb-1">Gambar saat ini:</p>
-                <img
-                  src={formData.image}
-                  alt="Preview"
-                  className="h-32 object-cover rounded"
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Harga (Per Bulan)
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-4 text-[#d4af37] font-bold">
+                  Rp
+                </span>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  placeholder="300000"
+                  className="w-full p-4 pl-12 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
               </div>
-            )}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Deskripsi Singkat
-            </label>
-            <textarea
-              name="summary"
-              value={formData.summary}
-              onChange={handleChange}
-              rows="3"
-              className="w-full p-2 border rounded"
-            ></textarea>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Gambar & Deskripsi */}
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ukuran Kamar
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Gambar Utama
+              </label>
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-[#fdfbf7] hover:bg-gray-50 transition-all group">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <svg
+                        className="w-6 h-6 text-[#d4af37]"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                    </div>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-bold text-[#1a1a1a]">
+                        Klik untuk upload
+                      </span>{" "}
+                      atau drag and drop
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      PNG, JPG or GIF (MAX. 3MB)
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    name="image"
+                    onChange={handleChange}
+                    accept="image/*"
+                    className="hidden"
+                    required={!isEdit}
+                  />
+                </label>
+              </div>
+              {formData.image && typeof formData.image === "string" && (
+                <div className="mt-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm inline-block">
+                  <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
+                    Gambar saat ini
+                  </p>
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="h-32 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              {formData.image && formData.image instanceof File && (
+                <div className="mt-4 flex items-center gap-2 text-sm text-[#d4af37] font-medium bg-[#d4af37]/10 p-3 rounded-lg inline-block">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  File terpilih: {formData.image.name}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Deskripsi Singkat
+              </label>
+              <textarea
+                name="summary"
+                value={formData.summary}
+                onChange={handleChange}
+                rows="4"
+                placeholder="Jelaskan keunggulan kos ini..."
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Detail Kamar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Lebar (Meter)
               </label>
               <input
-                type="text"
-                name="size"
-                value={formData.size}
+                type="number"
+                name="width"
+                value={formData.width}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                placeholder="3"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kapasitas
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Panjang (Meter)
               </label>
               <input
-                type="text"
+                type="number"
+                name="length"
+                value={formData.length}
+                onChange={handleChange}
+                placeholder="4"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Kapasitas (Orang)
+              </label>
+              <input
+                type="number"
                 name="capacity"
                 value={formData.capacity}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                placeholder="2"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fasilitas (pisahkan dengan koma)
-            </label>
-            <input
-              type="text"
-              name="facilities"
-              value={formData.facilities}
-              onChange={handleChange}
-              placeholder="AC, Wi-Fi, Kamar Mandi Dalam"
-              className="w-full p-2 border rounded"
-            />
+          {/* Fasilitas & Layanan */}
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Fasilitas (pisahkan dengan koma)
+              </label>
+              <input
+                type="text"
+                name="facilities"
+                value={formData.facilities}
+                onChange={handleChange}
+                placeholder="AC, Wi-Fi, Kamar Mandi Dalam, Lemari"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Layanan (pisahkan dengan koma)
+              </label>
+              <input
+                type="text"
+                name="services"
+                value={formData.services}
+                onChange={handleChange}
+                placeholder="Laundry, Cleaning Service, Penjaga 24 Jam"
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Layanan (pisahkan dengan koma)
-            </label>
-            <input
-              type="text"
-              name="services"
-              value={formData.services}
-              onChange={handleChange}
-              placeholder="Laundry, Cleaning Service"
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-medium mb-4">Info Pemilik</h3>
+          {/* Info Pemilik */}
+          <div className="border-t border-gray-100 pt-8">
+            <h3 className="text-xl font-serif font-bold text-[#1a1a1a] mb-6 flex items-center gap-2">
+              <span className="w-8 h-1 bg-[#d4af37] rounded-full"></span>
+              Informasi Pemilik
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                   Nama Pemilik
                 </label>
                 <input
@@ -274,11 +428,11 @@ function KosForm() {
                   name="owner_name"
                   value={formData.owner_name}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                   No. HP
                 </label>
                 <input
@@ -286,11 +440,11 @@ function KosForm() {
                   name="owner_phone"
                   value={formData.owner_phone}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                   Link WhatsApp
                 </label>
                 <input
@@ -298,25 +452,27 @@ function KosForm() {
                   name="owner_whatsapp"
                   value={formData.owner_whatsapp}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  placeholder="https://wa.me/62..."
+                  className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
             <button
               type="button"
               onClick={() => navigate("/admin")}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              className="px-8 py-4 bg-white text-gray-500 rounded-xl hover:bg-gray-50 transition-colors font-bold border border-gray-200"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-gold text-dark font-bold rounded hover:bg-[#c5a575]"
+              className="px-8 py-4 bg-[#1a1a1a] text-[#d4af37] font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              Simpan
+              Simpan Data
             </button>
           </div>
         </form>
