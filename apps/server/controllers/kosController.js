@@ -113,11 +113,11 @@ const updateKos = async (req, res) => {
   const { slug } = req.params;
   try {
     let imageUrl = req.body.image;
-    
+
     // Handle existing gallery (passed as array of strings or single string)
     let galleryUrls = req.body.gallery || [];
     if (!Array.isArray(galleryUrls)) {
-        galleryUrls = galleryUrls ? [galleryUrls] : [];
+      galleryUrls = galleryUrls ? [galleryUrls] : [];
     }
 
     // Handle Main Image Upload
