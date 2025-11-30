@@ -142,7 +142,7 @@ function Home() {
         <div className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col justify-center">
           <div className="absolute inset-0 z-0">
             <img
-              src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1500&q=80"
+              src="/heroimage.webp"
               alt="Hero Background"
               className="w-full h-full object-cover"
             />
@@ -229,7 +229,7 @@ function Home() {
           <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
             <div className="aspect-square rounded-3xl bg-white overflow-hidden relative shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
+                src="/aboutImage.webp"
                 alt="Interior Kos"
                 className="w-full h-full object-cover"
               />
