@@ -18,6 +18,12 @@ const getKosBySlug = async (slug) => {
     return null;
   }
   const row = result.rows[0];
+
+  const reviewsResult = await pool.query(
+    "SELECT r.*, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.kos_slug = $1 ORDER BY r.created_at DESC",
+    [slug]
+  );
+
   return {
     ...row,
     owner: {
@@ -25,7 +31,31 @@ const getKosBySlug = async (slug) => {
       phone: row.owner_phone,
       whatsapp: row.owner_whatsapp,
     },
+    reviewsList: reviewsResult.rows,
   };
+};
+
+const addReview = async (slug, userId, rating, comment) => {
+  await pool.query(
+    "INSERT INTO reviews (kos_slug, user_id, rating, comment) VALUES ($1, $2, $3, $4)",
+    [slug, userId, rating, comment]
+  );
+
+  const statsResult = await pool.query(
+    "SELECT COUNT(*) as count, AVG(rating) as average FROM reviews WHERE kos_slug = $1",
+    [slug]
+  );
+
+  const count = parseInt(statsResult.rows[0].count);
+  const average = parseFloat(statsResult.rows[0].average).toFixed(1);
+
+  await pool.query("UPDATE kos SET rating = $1, reviews = $2 WHERE slug = $3", [
+    average,
+    count,
+    slug,
+  ]);
+
+  return { rating: average, reviews: count };
 };
 
 const createKos = async (data) => {
@@ -153,4 +183,5 @@ module.exports = {
   createKos,
   updateKos,
   deleteKos,
+  addReview,
 };

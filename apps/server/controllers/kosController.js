@@ -153,10 +153,25 @@ const deleteKos = async (req, res) => {
   }
 };
 
+const addReview = async (req, res) => {
+  const { slug } = req.params;
+  const { rating, comment } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const result = await kosService.addReview(slug, userId, rating, comment);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllKos,
   getKosBySlug,
   createKos,
   updateKos,
   deleteKos,
+  addReview,
 };

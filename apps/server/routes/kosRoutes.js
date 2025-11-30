@@ -28,4 +28,6 @@ router.delete(
   kosController.deleteKos
 );
 
+router.post("/:slug/reviews", authenticateToken, kosController.addReview);
+
 module.exports = router;

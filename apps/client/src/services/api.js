@@ -101,3 +101,13 @@ export const deleteKos = async (slug) => {
   if (!response.ok) throw new Error("Failed to delete kos");
   return response.json();
 };
+
+export const addReview = async (slug, rating, comment) => {
+  const response = await fetch(`${BASE_URL}/kos/${slug}/reviews`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ rating, comment }),
+  });
+  if (!response.ok) throw new Error("Failed to add review");
+  return response.json();
+};

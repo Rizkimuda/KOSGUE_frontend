@@ -1,11 +1,15 @@
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getKosBySlug } from "../services/api";
+import { getKosBySlug, addReview } from "../services/api";
 
 function Detail() {
   const { slug } = useParams();
   const [kos, setKos] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userRating, setUserRating] = useState(5);
+  const [userComment, setUserComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,6 +25,27 @@ function Detail() {
 
     fetchData();
   }, [slug]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      alert("Silakan login untuk memberikan review");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await addReview(slug, userRating, userComment);
+      const data = await getKosBySlug(slug);
+      setKos(data);
+      setUserComment("");
+      alert("Review berhasil dikirim!");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Gagal mengirim review");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -234,6 +259,103 @@ function Detail() {
             ) : (
               <p className="text-muted italic">Belum ada galeri foto.</p>
             )}
+          </section>
+
+          <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 className="text-2xl font-serif font-bold text-dark mb-6">
+              Ulasan Penghuni
+            </h2>
+
+            {isLoggedIn ? (
+              <form
+                onSubmit={handleReviewSubmit}
+                className="mb-8 bg-gray-50 p-6 rounded-xl"
+              >
+                <h3 className="font-bold mb-4">Tulis Ulasan Anda</h3>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Rating
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setUserRating(star)}
+                        className={`text-2xl ${
+                          star <= userRating ? "text-gold" : "text-gray-300"
+                        }`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Komentar
+                  </label>
+                  <textarea
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                    rows="3"
+                    placeholder="Bagikan pengalaman Anda..."
+                    required
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-6 py-2 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors disabled:opacity-50"
+                >
+                  {submitting ? "Mengirim..." : "Kirim Ulasan"}
+                </button>
+              </form>
+            ) : (
+              <div className="mb-8 p-4 bg-blue-50 text-blue-700 rounded-lg">
+                Silakan{" "}
+                <Link to="/login" className="font-bold underline">
+                  login
+                </Link>{" "}
+                untuk memberikan ulasan.
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {kos.reviewsList && kos.reviewsList.length > 0 ? (
+                kos.reviewsList.map((review) => (
+                  <div
+                    key={review.id}
+                    className="border-b border-gray-100 pb-6 last:border-0"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-bold text-dark">
+                        {review.username || "User"}
+                      </div>
+                      <div className="text-sm text-muted">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="flex text-gold mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={
+                            i < review.rating ? "text-gold" : "text-gray-200"
+                          }
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-gray-600">{review.comment}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted italic">Belum ada ulasan.</p>
+              )}
+            </div>
           </section>
         </div>
 
