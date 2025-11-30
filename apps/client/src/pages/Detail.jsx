@@ -248,7 +248,7 @@ function Detail() {
   }
 
   return (
-    <div className="min-h-screen bg-cream font-sans text-dark pb-24">
+    <div className="min-h-screen bg-cream font-sans text-dark">
       <div className="relative h-[50vh] min-h-[400px] bg-dark">
         <img
           src={kos.image}
@@ -660,8 +660,24 @@ function Detail() {
           onClose={() => setShowBookingForm(false)}
         />
       )}
+
+      <footer className="bg-white border-t border-gray-200 py-12 mt-12">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-muted text-sm">
+            © {new Date().getFullYear()} KosGue. Semua hak dilindungi.
+          </p>
+          <div className="flex items-center gap-6 text-sm font-medium text-muted">
+            <a href="#" className="hover:text-gold transition-colors">
+              Kebijakan Privasi
+            </a>
+            <span className="text-gray-300">•</span>
+            <a href="#" className="hover:text-gold transition-colors">
+              Pusat Bantuan
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
-
 export default Detail;
