@@ -121,6 +121,49 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : [];
   };
 
+  const createBooking = (bookingData) => {
+    if (!user) {
+      return { success: false, message: "Anda harus login terlebih dahulu." };
+    }
+
+    const bookings = getBookings();
+    const newBooking = {
+      ...bookingData,
+      id: Date.now().toString(),
+      userId: user.email,
+      status: "pending", // pending, confirmed, cancelled
+      createdAt: new Date().toISOString(),
+    };
+    bookings.push(newBooking);
+    localStorage.setItem("kosgue_bookings", JSON.stringify(bookings));
+    return { success: true, booking: newBooking };
+  };
+
+  const getBookings = () => {
+    const stored = localStorage.getItem("kosgue_bookings");
+    return stored ? JSON.parse(stored) : [];
+  };
+
+  const getUserBookings = () => {
+    if (!user) return [];
+    const allBookings = getBookings();
+    return allBookings.filter((booking) => booking.userId === user.email);
+  };
+
+  const updateBookingStatus = (bookingId, newStatus) => {
+    const bookings = getBookings();
+    const bookingIndex = bookings.findIndex((b) => b.id === bookingId);
+    if (bookingIndex !== -1) {
+      bookings[bookingIndex].status = newStatus;
+      if (newStatus === "confirmed") {
+        bookings[bookingIndex].confirmedAt = new Date().toISOString();
+      }
+      localStorage.setItem("kosgue_bookings", JSON.stringify(bookings));
+      return { success: true, booking: bookings[bookingIndex] };
+    }
+    return { success: false, message: "Booking tidak ditemukan." };
+  };
+
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
@@ -129,7 +172,20 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, register, registerAsOwner, addKos, getKosList, logout }}
+      value={{ 
+        isAuthenticated, 
+        user, 
+        login, 
+        register, 
+        registerAsOwner, 
+        addKos, 
+        getKosList, 
+        createBooking,
+        getBookings,
+        getUserBookings,
+        updateBookingStatus,
+        logout 
+      }}
     >
       {children}
     </AuthContext.Provider>

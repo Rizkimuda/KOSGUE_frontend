@@ -1,11 +1,12 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import kosList from "../data/kosList";
 import { formatPrice } from "../utils/formatPrice";
 
 function Detail() {
   const { slug } = useParams();
-  const { getKosList } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, getKosList } = useAuth();
   
   // Combine default kosList with user-added kos
   const userAddedKos = getKosList ? getKosList() : [];
@@ -219,7 +220,16 @@ function Detail() {
               </p>
             </div>
 
-            <button className="w-full py-4 bg-gold text-dark font-bold rounded-xl hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mb-8">
+            <button 
+              onClick={() => {
+                if (!isAuthenticated) {
+                  navigate(`/login?redirect=/booking/${slug}`);
+                } else {
+                  navigate(`/booking/${slug}`);
+                }
+              }}
+              className="w-full py-4 bg-gold text-dark font-bold rounded-xl hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mb-8"
+            >
               Ajukan Booking
             </button>
 

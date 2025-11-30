@@ -1,10 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import UserMenu from "../components/UserMenu";
 import { useState } from "react";
 
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -16,7 +17,8 @@ function Login() {
     const result = login(formData.email, formData.password);
     
     if (result.success) {
-      navigate("/");
+      const redirect = searchParams.get("redirect");
+      navigate(redirect || "/");
     } else {
       setError(result.message);
     }
