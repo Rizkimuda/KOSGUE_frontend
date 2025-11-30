@@ -342,6 +342,7 @@ function KosForm() {
                   value={formData.price}
                   onChange={handleChange}
                   required
+                  min="1"
                   placeholder="300000"
                   className="w-full p-4 pl-12 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
@@ -578,6 +579,7 @@ function KosForm() {
                 name="width"
                 value={formData.width}
                 onChange={handleChange}
+                min="1"
                 placeholder="3"
                 className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
@@ -591,6 +593,7 @@ function KosForm() {
                 name="length"
                 value={formData.length}
                 onChange={handleChange}
+                min="1"
                 placeholder="4"
                 className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />
@@ -604,6 +607,7 @@ function KosForm() {
                 name="capacity"
                 value={formData.capacity}
                 onChange={handleChange}
+                min="1"
                 placeholder="2"
                 className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
               />

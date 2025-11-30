@@ -199,7 +199,7 @@ function Home() {
               <div className="mt-16 flex items-center gap-12 border-t border-white/10 pt-8">
                 <div>
                   <p className="text-3xl font-serif font-bold text-white">
-                    230+
+                    12+
                   </p>
                   <p className="text-sm text-white/60 mt-1">
                     Kos terverifikasi
@@ -213,7 +213,7 @@ function Home() {
                 </div>
                 <div>
                   <p className="text-3xl font-serif font-bold text-white">
-                    15+
+                    2+
                   </p>
                   <p className="text-sm text-white/60 mt-1">Kota populer</p>
                 </div>
