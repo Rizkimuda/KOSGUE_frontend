@@ -5,15 +5,18 @@ import { getKosList } from "../services/api";
 const facilities = [
   {
     title: "Pilihan Kos",
-    description: "Para pemilik kos menyediakan kos siap huni dengan berbagai kelengkapan furnitur.",
+    description:
+      "Para pemilik kos menyediakan kos siap huni dengan berbagai kelengkapan furnitur.",
   },
   {
     title: "Fasilitas Umum",
-    description: "Temukan hunian dengan fasilitas penunjang seperti Wi-Fi, dapur, hingga area parkir luas.",
+    description:
+      "Temukan hunian dengan fasilitas penunjang seperti Wi-Fi, dapur, hingga area parkir luas.",
   },
   {
     title: "Keamanan Terjaga",
-    description: "Cari kos dengan fitur keamanan seperti akses 24 jam, CCTV, atau penjaga kos",
+    description:
+      "Cari kos dengan fitur keamanan seperti akses 24 jam, CCTV, atau penjaga kos",
   },
 ];
 
@@ -408,12 +411,18 @@ function Home() {
               hubungi pemilik langsung tanpa perantara.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 bg-dark text-white font-bold rounded-full hover:bg-black transition-colors shadow-lg">
+              <Link
+                to="/register"
+                className="w-full sm:w-auto px-8 py-4 bg-dark text-white font-bold rounded-full hover:bg-black transition-colors shadow-lg text-center inline-block"
+              >
                 Buat Akun Gratis
-              </button>
-              <button className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark">
+              </Link>
+              <a
+                href="#featured"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark text-center inline-block"
+              >
                 Eksplor semua kos
-              </button>
+              </a>
             </div>
           </div>
         </section>
