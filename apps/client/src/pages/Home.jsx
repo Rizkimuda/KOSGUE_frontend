@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getKosList } from "../services/api";
+import { CITIES } from "../utils/constants";
 
 const facilities = [
   {
@@ -164,39 +165,38 @@ function Home() {
                 hunian paling nyaman tanpa perlu survei keliling kota.
               </p>
 
-              <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl shadow-black/20 grid md:grid-cols-4 gap-4 items-end">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
+              <div className="bg-white p-3 md:p-4 rounded-xl shadow-xl shadow-black/20 grid md:grid-cols-3 gap-3 items-end">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
                     Kota
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Masukkan kota"
-                    className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
-                  />
+                  <select className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
+                    <option value="">Pilih Kota</option>
+                    {CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
-                    Tanggal masuk
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
                     Anggaran
                   </label>
-                  <select className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
+                  <select className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
                     <option>&lt; Rp1.500.000</option>
                     <option>Rp1.500.000 - Rp2.000.000</option>
                     <option>&gt; Rp2.000.000</option>
                   </select>
                 </div>
-                <button className="w-full p-3 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors">
-                  Cari Kos
-                </button>
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                    Tunggu apa lagi
+                  </label>
+                  <button className="w-full p-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors text-sm">
+                    Cari Kos
+                  </button>
+                </div>
               </div>
 
               <div className="mt-16 flex items-center gap-12 border-t border-white/10 pt-8">

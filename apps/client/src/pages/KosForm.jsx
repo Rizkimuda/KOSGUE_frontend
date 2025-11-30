@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createKos, getKosBySlug, updateKos } from "../services/api";
+import { CITIES } from "../utils/constants";
 import {
   MapContainer,
   TileLayer,
@@ -333,15 +334,20 @@ function KosForm() {
               <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
                 Kota / Lokasi
               </label>
-              <input
-                type="text"
+              <select
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
                 required
-                placeholder="Contoh: Jakarta Selatan"
-                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
-              />
+                className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] font-medium"
+              >
+                <option value="">Pilih Kota</option>
+                {CITIES.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
