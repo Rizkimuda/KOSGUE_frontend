@@ -60,6 +60,7 @@ Terima kasih.`;
       message
     )}`;
     window.open(whatsappUrl, "_blank");
+    onClose(); // Close the modal after opening WhatsApp
   };
 
   return (
