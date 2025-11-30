@@ -68,9 +68,9 @@ const createKos = async (data) => {
     facilities || [],
     services || [],
     gallery || [],
-    owner?.name,
-    owner?.phone,
-    owner?.whatsapp,
+    owner?.name || null,
+    owner?.phone || null,
+    owner?.whatsapp || null,
   ];
 
   const result = await pool.query(query, values);
@@ -119,9 +119,9 @@ const updateKos = async (slug, data) => {
     facilities || [],
     services || [],
     gallery || [],
-    owner?.name,
-    owner?.phone,
-    owner?.whatsapp,
+    owner?.name || null,
+    owner?.phone || null,
+    owner?.whatsapp || null,
     slug,
   ];
 

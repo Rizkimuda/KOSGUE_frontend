@@ -25,40 +25,76 @@ const getKosBySlug = async (req, res) => {
 const supabase = require("../config/supabase");
 
 const uploadToSupabase = async (file) => {
-  const timestamp = Date.now();
-  const fileName = `${timestamp}-${file.originalname.replace(/\s/g, "_")}`;
+  try {
+    const timestamp = Date.now();
+    const fileName = `${timestamp}-${file.originalname.replace(/\s/g, "_")}`;
 
-  const { data, error } = await supabase.storage
-    .from("kos-images") // Pastikan nama bucket sesuai
-    .upload(fileName, file.buffer, {
-      contentType: file.mimetype,
-    });
+    console.log("Uploading to Supabase:", fileName);
 
-  if (error) throw error;
+    const { data, error } = await supabase.storage
+      .from("foto-kos") // Pastikan nama bucket sesuai
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+      });
 
-  const { data: publicUrlData } = supabase.storage
-    .from("kos-images")
-    .getPublicUrl(fileName);
+    if (error) {
+      console.error("Supabase Upload Error:", error);
+      throw new Error(`Supabase Upload Failed: ${error.message}`);
+    }
 
-  return publicUrlData.publicUrl;
+    const { data: publicUrlData } = supabase.storage
+      .from("foto-kos")
+      .getPublicUrl(fileName);
+
+    console.log("Upload success, URL:", publicUrlData.publicUrl);
+    return publicUrlData.publicUrl;
+  } catch (err) {
+    console.error("Unexpected error in uploadToSupabase:", err);
+    throw err;
+  }
 };
 
 const createKos = async (req, res) => {
   try {
+    console.log("Received createKos request");
+    console.log("Body:", req.body);
+    console.log("File:", req.file ? req.file.originalname : "No file");
+
     let imageUrl = req.body.image;
 
     if (req.file) {
       imageUrl = await uploadToSupabase(req.file);
     }
 
+    // Parse arrays and objects from FormData keys
+    const facilities = req.body.facilities || req.body["facilities[]"];
+    const services = req.body.services || req.body["services[]"];
+
+    const owner = {
+      name: req.body["owner[name]"],
+      phone: req.body["owner[phone]"],
+      whatsapp: req.body["owner[whatsapp]"],
+    };
+
     const kosData = {
       ...req.body,
       image: imageUrl,
+      facilities: Array.isArray(facilities)
+        ? facilities
+        : facilities
+        ? [facilities]
+        : [],
+      services: Array.isArray(services) ? services : services ? [services] : [],
+      owner: owner,
     };
+
+    console.log("Saving to DB:", kosData);
+
     const newKos = await kosService.createKos(kosData);
     res.status(201).json(newKos);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Error creating kos:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -71,16 +107,35 @@ const updateKos = async (req, res) => {
       imageUrl = await uploadToSupabase(req.file);
     }
 
+    // Parse arrays and objects from FormData keys
+    const facilities = req.body.facilities || req.body["facilities[]"];
+    const services = req.body.services || req.body["services[]"];
+
+    const owner = {
+      name: req.body["owner[name]"],
+      phone: req.body["owner[phone]"],
+      whatsapp: req.body["owner[whatsapp]"],
+    };
+
     const kosData = {
       ...req.body,
       image: imageUrl,
+      facilities: Array.isArray(facilities)
+        ? facilities
+        : facilities
+        ? [facilities]
+        : [],
+      services: Array.isArray(services) ? services : services ? [services] : [],
+      owner: owner,
     };
+
     const updatedKos = await kosService.updateKos(slug, kosData);
     if (!updatedKos) {
       return res.status(404).json({ message: "Kos not found" });
     }
     res.json(updatedKos);
   } catch (error) {
+    console.error("Error updating kos:", error);
     res.status(400).json({ message: error.message });
   }
 };
