@@ -81,9 +81,16 @@ const createKos = async (req, res) => {
     const services = req.body.services || req.body["services[]"];
 
     const owner = {
-      name: req.body["owner[name]"],
-      phone: req.body["owner[phone]"],
-      whatsapp: req.body["owner[whatsapp]"],
+      name:
+        req.body.owner?.name || req.body["owner[name]"] || req.body.owner_name,
+      phone:
+        req.body.owner?.phone ||
+        req.body["owner[phone]"] ||
+        req.body.owner_phone,
+      whatsapp:
+        req.body.owner?.whatsapp ||
+        req.body["owner[whatsapp]"] ||
+        req.body.owner_whatsapp,
     };
 
     const kosData = {
@@ -139,9 +146,16 @@ const updateKos = async (req, res) => {
     const services = req.body.services || req.body["services[]"];
 
     const owner = {
-      name: req.body["owner[name]"],
-      phone: req.body["owner[phone]"],
-      whatsapp: req.body["owner[whatsapp]"],
+      name:
+        req.body.owner?.name || req.body["owner[name]"] || req.body.owner_name,
+      phone:
+        req.body.owner?.phone ||
+        req.body["owner[phone]"] ||
+        req.body.owner_phone,
+      whatsapp:
+        req.body.owner?.whatsapp ||
+        req.body["owner[whatsapp]"] ||
+        req.body.owner_whatsapp,
     };
 
     const kosData = {
