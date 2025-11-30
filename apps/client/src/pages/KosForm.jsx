@@ -13,6 +13,7 @@ function KosForm() {
     city: "",
     price: "",
     image: "",
+    gallery: [], // Existing gallery URLs
     summary: "",
     width: "",
     length: "",
@@ -23,6 +24,8 @@ function KosForm() {
     owner_phone: "",
     owner_whatsapp: "",
   });
+
+  const [newGalleryFiles, setNewGalleryFiles] = useState([]); // New files to upload
 
   useEffect(() => {
     if (isEdit) {
@@ -82,6 +85,7 @@ function KosForm() {
         owner_name: data.owner?.name || "",
         owner_phone: data.owner?.phone || "",
         owner_whatsapp: data.owner?.whatsapp || "",
+        gallery: data.gallery || [],
       });
     } catch (error) {
       console.error("Error fetching kos:", error);
@@ -95,11 +99,43 @@ function KosForm() {
         ...formData,
         image: files[0],
       });
+    } else if (name === "gallery" && files) {
+      const filesArray = Array.from(files);
+      const validFiles = [];
+      let errorMsg = "";
+
+      if (newGalleryFiles.length + filesArray.length + formData.gallery.length > 5) {
+        alert("Maksimal total 5 foto galeri.");
+        return;
+      }
+
+      filesArray.forEach(file => {
+        if (file.size > 3 * 1024 * 1024) {
+          errorMsg = `File ${file.name} melebihi 3MB.`;
+        } else {
+          validFiles.push(file);
+        }
+      });
+
+      if (errorMsg) alert(errorMsg);
+      
+      setNewGalleryFiles(prev => [...prev, ...validFiles]);
     } else {
       setFormData({
         ...formData,
         [name]: value,
       });
+    }
+  };
+
+  const removeGalleryItem = (index, isNew) => {
+    if (isNew) {
+      setNewGalleryFiles(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        gallery: prev.gallery.filter((_, i) => i !== index)
+      }));
     }
   };
 
@@ -133,6 +169,12 @@ function KosForm() {
     } else if (formData.image) {
       payload.append("image", formData.image); // Keep existing URL if not changed
     }
+
+    // Handle Gallery
+    // Append existing URLs
+    formData.gallery.forEach(url => payload.append("gallery", url));
+    // Append new files
+    newGalleryFiles.forEach(file => payload.append("gallery", file));
 
     // Handle arrays
     const facilitiesArray = formData.facilities
@@ -321,6 +363,59 @@ function KosForm() {
                   File terpilih: {formData.image.name}
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Galeri Foto (Max 5 Foto, Max 3MB/foto)
+              </label>
+              <div className="flex items-center justify-center w-full mb-4">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-[#fdfbf7] hover:bg-gray-50 transition-all group">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-8 h-8 text-[#d4af37] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-gray-500">Tambah Foto Galeri</p>
+                  </div>
+                  <input
+                    type="file"
+                    name="gallery"
+                    onChange={handleChange}
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {/* Existing Gallery */}
+                {formData.gallery.map((url, index) => (
+                  <div key={`existing-${index}`} className="relative group">
+                    <img src={url} alt={`Gallery ${index}`} className="w-full h-24 object-cover rounded-lg" />
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryItem(index, false)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ))}
+                {/* New Gallery Files */}
+                {newGalleryFiles.map((file, index) => (
+                  <div key={`new-${index}`} className="relative group">
+                    <img src={URL.createObjectURL(file)} alt={`New Gallery ${index}`} className="w-full h-24 object-cover rounded-lg border-2 border-[#d4af37]" />
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryItem(index, true)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>

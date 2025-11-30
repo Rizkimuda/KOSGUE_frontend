@@ -58,12 +58,22 @@ const createKos = async (req, res) => {
   try {
     console.log("Received createKos request");
     console.log("Body:", req.body);
-    console.log("File:", req.file ? req.file.originalname : "No file");
+    console.log("Files:", req.files);
 
     let imageUrl = req.body.image;
+    let galleryUrls = [];
 
-    if (req.file) {
-      imageUrl = await uploadToSupabase(req.file);
+    // Handle Main Image
+    if (req.files && req.files["image"]) {
+      imageUrl = await uploadToSupabase(req.files["image"][0]);
+    }
+
+    // Handle Gallery Images
+    if (req.files && req.files["gallery"]) {
+      const galleryUploadPromises = req.files["gallery"].map((file) =>
+        uploadToSupabase(file)
+      );
+      galleryUrls = await Promise.all(galleryUploadPromises);
     }
 
     // Parse arrays and objects from FormData keys
@@ -79,6 +89,7 @@ const createKos = async (req, res) => {
     const kosData = {
       ...req.body,
       image: imageUrl,
+      gallery: galleryUrls,
       facilities: Array.isArray(facilities)
         ? facilities
         : facilities
@@ -102,9 +113,25 @@ const updateKos = async (req, res) => {
   const { slug } = req.params;
   try {
     let imageUrl = req.body.image;
+    
+    // Handle existing gallery (passed as array of strings or single string)
+    let galleryUrls = req.body.gallery || [];
+    if (!Array.isArray(galleryUrls)) {
+        galleryUrls = galleryUrls ? [galleryUrls] : [];
+    }
 
-    if (req.file) {
-      imageUrl = await uploadToSupabase(req.file);
+    // Handle Main Image Upload
+    if (req.files && req.files["image"]) {
+      imageUrl = await uploadToSupabase(req.files["image"][0]);
+    }
+
+    // Handle New Gallery Uploads
+    if (req.files && req.files["gallery"]) {
+      const galleryUploadPromises = req.files["gallery"].map((file) =>
+        uploadToSupabase(file)
+      );
+      const newGalleryUrls = await Promise.all(galleryUploadPromises);
+      galleryUrls = [...galleryUrls, ...newGalleryUrls];
     }
 
     // Parse arrays and objects from FormData keys
@@ -120,6 +147,7 @@ const updateKos = async (req, res) => {
     const kosData = {
       ...req.body,
       image: imageUrl,
+      gallery: galleryUrls,
       facilities: Array.isArray(facilities)
         ? facilities
         : facilities

@@ -11,14 +11,20 @@ router.post(
   "/",
   authenticateToken,
   adminMiddleware,
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "gallery", maxCount: 5 },
+  ]),
   kosController.createKos
 );
 router.put(
   "/:slug",
   authenticateToken,
   adminMiddleware,
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "gallery", maxCount: 5 },
+  ]),
   kosController.updateKos
 );
 router.delete(
