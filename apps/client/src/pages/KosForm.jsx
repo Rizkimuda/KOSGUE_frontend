@@ -181,7 +181,7 @@ function KosForm() {
       let phone = value;
       // Remove non-numeric characters for the link generation
       let cleanPhone = phone.replace(/\D/g, "");
-      
+
       // Format to 62 if starts with 0
       if (cleanPhone.startsWith("0")) {
         cleanPhone = "62" + cleanPhone.slice(1);
@@ -692,7 +692,9 @@ function KosForm() {
                   placeholder="Contoh: 628123456789"
                   className="w-full p-4 bg-[#fdfbf7] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d4af37]/20 focus:border-[#d4af37] outline-none transition-all text-[#1a1a1a] placeholder-gray-400 font-medium"
                 />
-                <p className="text-xs text-gray-400 mt-1">Gunakan awalan 62 agar link WhatsApp berfungsi dengan baik.</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Gunakan awalan 62 agar link WhatsApp berfungsi dengan baik.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
