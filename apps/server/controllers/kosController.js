@@ -22,7 +22,6 @@ const getKosBySlug = async (req, res) => {
   }
 };
 
-const kosService = require("../services/kosService");
 const supabase = require("../config/supabase");
 
 const uploadToSupabase = async (file) => {
