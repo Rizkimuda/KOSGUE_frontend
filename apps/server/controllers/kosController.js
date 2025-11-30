@@ -85,9 +85,7 @@ const processKosData = async (req) => {
     name:
       req.body.owner?.name || req.body["owner[name]"] || req.body.owner_name,
     phone:
-      req.body.owner?.phone ||
-      req.body["owner[phone]"] ||
-      req.body.owner_phone,
+      req.body.owner?.phone || req.body["owner[phone]"] || req.body.owner_phone,
     whatsapp:
       req.body.owner?.whatsapp ||
       req.body["owner[whatsapp]"] ||

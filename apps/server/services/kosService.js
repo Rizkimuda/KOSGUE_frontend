@@ -74,13 +74,16 @@ const createKos = async (data) => {
     services,
     gallery,
     owner,
+    latitude,
+    longitude,
   } = data;
 
   const query = `
     INSERT INTO kos (
       slug, name, city, price, image, summary, size, capacity, rating, reviews, 
-      facilities, services, gallery, owner_name, owner_phone, owner_whatsapp
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      facilities, services, gallery, owner_name, owner_phone, owner_whatsapp,
+      latitude, longitude
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
     RETURNING *
   `;
 
@@ -101,6 +104,8 @@ const createKos = async (data) => {
     owner?.name || null,
     owner?.phone || null,
     owner?.whatsapp || null,
+    latitude || null,
+    longitude || null,
   ];
 
   const result = await pool.query(query, values);
@@ -128,13 +133,16 @@ const updateKos = async (slug, data) => {
     services,
     gallery,
     owner,
+    latitude,
+    longitude,
   } = data;
 
   const query = `
     UPDATE kos SET
       name = $1, city = $2, price = $3, image = $4, summary = $5, size = $6, capacity = $7,
-      facilities = $8, services = $9, gallery = $10, owner_name = $11, owner_phone = $12, owner_whatsapp = $13
-    WHERE slug = $14
+      facilities = $8, services = $9, gallery = $10, owner_name = $11, owner_phone = $12, owner_whatsapp = $13,
+      latitude = $14, longitude = $15
+    WHERE slug = $16
     RETURNING *
   `;
 
@@ -152,6 +160,8 @@ const updateKos = async (slug, data) => {
     owner?.name || null,
     owner?.phone || null,
     owner?.whatsapp || null,
+    latitude || null,
+    longitude || null,
     slug,
   ];
 

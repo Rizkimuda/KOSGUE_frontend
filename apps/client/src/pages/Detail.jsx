@@ -1,6 +1,22 @@
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getKosBySlug, addReview } from "../services/api";
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 function Detail() {
   const { slug } = useParams();
@@ -260,6 +276,42 @@ function Detail() {
               <p className="text-muted italic">Belum ada galeri foto.</p>
             )}
           </section>
+
+          {kos.latitude && kos.longitude && (
+            <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-serif font-bold text-dark mb-6">
+                Lokasi
+              </h2>
+              <div className="h-64 w-full rounded-xl overflow-hidden border border-gray-200 z-0 relative">
+                <MapContainer 
+                    center={[kos.latitude, kos.longitude]} 
+                    zoom={15} 
+                    scrollWheelZoom={false} 
+                    style={{ height: '100%', width: '100%' }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={[kos.latitude, kos.longitude]} />
+                </MapContainer>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-muted">
+                  <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${kos.latitude},${kos.longitude}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="hover:text-gold transition-colors underline"
+                  >
+                      Buka di Google Maps
+                  </a>
+              </div>
+            </section>
+          )}
 
           <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <h2 className="text-2xl font-serif font-bold text-dark mb-6">

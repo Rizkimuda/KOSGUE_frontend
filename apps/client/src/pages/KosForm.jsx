@@ -1,6 +1,42 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createKos, getKosBySlug, updateKos } from "../services/api";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+function LocationMarker({ position, setPosition }) {
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+    },
+  });
+
+  return position ? <Marker position={position} /> : null;
+}
+
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 13);
+    }
+  }, [center, map]);
+  return null;
+}
 
 function KosForm() {
   const { slug } = useParams();
@@ -26,6 +62,8 @@ function KosForm() {
   });
 
   const [newGalleryFiles, setNewGalleryFiles] = useState([]); // New files to upload
+  const [position, setPosition] = useState(null);
+  const [mapCenter, setMapCenter] = useState([-6.200000, 106.816666]); // Default Jakarta
 
   useEffect(() => {
     if (isEdit) {
@@ -87,6 +125,13 @@ function KosForm() {
         owner_whatsapp: data.owner?.whatsapp || "",
         gallery: data.gallery || [],
       });
+
+      if (data.latitude && data.longitude) {
+          const pos = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+          setPosition(pos);
+          setMapCenter([pos.lat, pos.lng]);
+      }
+
     } catch (error) {
       console.error("Error fetching kos:", error);
     }
@@ -195,6 +240,12 @@ function KosForm() {
     payload.append("owner[phone]", formData.owner_phone);
     payload.append("owner[whatsapp]", formData.owner_whatsapp);
 
+    // Handle Location
+    if (position) {
+        payload.append('latitude', position.lat);
+        payload.append('longitude', position.lng);
+    }
+
     try {
       if (isEdit) {
         await updateKos(slug, payload);
@@ -288,6 +339,29 @@ function KosForm() {
                 />
               </div>
             </div>
+
+            {/* Map Section */}
+            <div className="col-span-2">
+              <label className="block text-sm font-bold text-[#1a1a1a]/70 uppercase tracking-wider mb-2">
+                Lokasi Peta (Klik untuk menandai)
+              </label>
+              <div className="h-64 w-full rounded-xl overflow-hidden border border-gray-200 z-0 relative">
+                  <MapContainer center={mapCenter} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <MapUpdater center={mapCenter} />
+                    <LocationMarker position={position} setPosition={setPosition} />
+                  </MapContainer>
+              </div>
+              {position && (
+                  <p className="text-sm text-gray-500 mt-2">
+                      Lat: {position.lat.toFixed(6)}, Lng: {position.lng.toFixed(6)}
+                  </p>
+              )}
+            </div>
+
           </div>
 
           {/* Gambar & Deskripsi */}
