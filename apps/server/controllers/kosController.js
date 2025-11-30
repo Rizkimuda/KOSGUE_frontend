@@ -22,13 +22,39 @@ const getKosBySlug = async (req, res) => {
   }
 };
 
+const kosService = require("../services/kosService");
+const supabase = require("../config/supabase");
+
+const uploadToSupabase = async (file) => {
+  const timestamp = Date.now();
+  const fileName = `${timestamp}-${file.originalname.replace(/\s/g, "_")}`;
+
+  const { data, error } = await supabase.storage
+    .from("kos-images") // Pastikan nama bucket sesuai
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+    });
+
+  if (error) throw error;
+
+  const { data: publicUrlData } = supabase.storage
+    .from("kos-images")
+    .getPublicUrl(fileName);
+
+  return publicUrlData.publicUrl;
+};
+
 const createKos = async (req, res) => {
   try {
+    let imageUrl = req.body.image;
+
+    if (req.file) {
+      imageUrl = await uploadToSupabase(req.file);
+    }
+
     const kosData = {
       ...req.body,
-      image: req.file
-        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-        : req.body.image,
+      image: imageUrl,
     };
     const newKos = await kosService.createKos(kosData);
     res.status(201).json(newKos);
@@ -40,11 +66,15 @@ const createKos = async (req, res) => {
 const updateKos = async (req, res) => {
   const { slug } = req.params;
   try {
+    let imageUrl = req.body.image;
+
+    if (req.file) {
+      imageUrl = await uploadToSupabase(req.file);
+    }
+
     const kosData = {
       ...req.body,
-      image: req.file
-        ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-        : req.body.image,
+      image: imageUrl,
     };
     const updatedKos = await kosService.updateKos(slug, kosData);
     if (!updatedKos) {
