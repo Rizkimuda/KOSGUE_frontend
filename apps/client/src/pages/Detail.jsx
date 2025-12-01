@@ -594,7 +594,15 @@ function Detail() {
             </div>
 
             <button
-              onClick={() => setShowBookingForm(true)}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  alert(
+                    "Silakan login atau register terlebih dahulu untuk menjadwalkan survei."
+                  );
+                  return;
+                }
+                setShowBookingForm(true);
+              }}
               className="w-full py-4 bg-gold text-dark font-bold rounded-xl hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mb-8"
             >
               Jadwalkan Survei
@@ -620,7 +628,15 @@ function Detail() {
               <div className="grid grid-cols-2 gap-3">
                 {kos.owner?.phone && (
                   <a
-                    href={`tel:${kos.owner.phone}`}
+                    href={isLoggedIn ? `tel:${kos.owner.phone}` : "#"}
+                    onClick={(e) => {
+                      if (!isLoggedIn) {
+                        e.preventDefault();
+                        alert(
+                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik."
+                        );
+                      }
+                    }}
                     className="flex items-center justify-center py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-muted hover:bg-gray-50 transition-colors"
                   >
                     Telepon
@@ -628,9 +644,17 @@ function Detail() {
                 )}
                 {kos.owner?.whatsapp ? (
                   <a
-                    href={kos.owner.whatsapp}
+                    href={isLoggedIn ? kos.owner.whatsapp : "#"}
+                    onClick={(e) => {
+                      if (!isLoggedIn) {
+                        e.preventDefault();
+                        alert(
+                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik."
+                        );
+                      }
+                    }}
                     className="flex items-center justify-center py-2.5 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
-                    target="_blank"
+                    target={isLoggedIn ? "_blank" : "_self"}
                     rel="noreferrer"
                   >
                     WhatsApp
