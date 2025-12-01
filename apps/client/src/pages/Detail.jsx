@@ -65,8 +65,8 @@ Terima kasih.`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-cream">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-cream shrink-0">
           <h3 className="text-xl font-serif font-bold text-dark">
             Jadwalkan Survei
           </h3>
@@ -90,7 +90,10 @@ Terima kasih.`;
           </button>
         </div>
 
-        <form onSubmit={handleKirimWA} className="p-6 space-y-4">
+        <form
+          onSubmit={handleKirimWA}
+          className="p-6 space-y-4 overflow-y-auto"
+        >
           <div>
             <label className="block text-sm font-bold text-dark/70 uppercase tracking-wider mb-2">
               Nama Lengkap
@@ -219,6 +222,14 @@ function Detail() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleScheduleClick = () => {
+    if (!isLoggedIn) {
+      alert("Silakan masuk atau daftar akun terlebih dahulu untuk menjadwalkan survei.");
+      return;
+    }
+    setShowBookingForm(true);
   };
 
   if (loading) {
@@ -594,7 +605,7 @@ function Detail() {
             </div>
 
             <button
-              onClick={() => setShowBookingForm(true)}
+              onClick={handleScheduleClick}
               className="w-full py-4 bg-gold text-dark font-bold rounded-xl hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mb-8"
             >
               Jadwalkan Survei
