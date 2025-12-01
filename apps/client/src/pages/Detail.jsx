@@ -591,9 +591,7 @@ function Detail() {
               <p className="text-3xl font-serif font-bold text-gold">
                 {kos.price}
               </p>
-              <p className="text-xs text-muted mt-2">
-                Harga sudah termasuk listrik, air, dan layanan kebersihan.
-              </p>
+              
             </div>
 
             <button
