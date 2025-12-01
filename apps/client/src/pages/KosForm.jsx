@@ -380,7 +380,7 @@ function KosForm() {
                 <MapContainer
                   center={mapCenter}
                   zoom={13}
-                  scrollWheelZoom={false}
+                  scrollWheelZoom={true}
                   style={{ height: "100%", width: "100%" }}
                 >
                   <TileLayer

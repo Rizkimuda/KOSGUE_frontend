@@ -444,7 +444,7 @@ function Detail() {
                 <MapContainer
                   center={[kos.latitude, kos.longitude]}
                   zoom={15}
-                  scrollWheelZoom={false}
+                  scrollWheelZoom={true}
                   style={{ height: "100%", width: "100%" }}
                 >
                   <TileLayer
@@ -591,7 +591,6 @@ function Detail() {
               <p className="text-3xl font-serif font-bold text-gold">
                 {kos.price}
               </p>
-              
             </div>
 
             <button
