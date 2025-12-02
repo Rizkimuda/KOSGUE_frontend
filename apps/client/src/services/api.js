@@ -53,6 +53,24 @@ export const register = async (username, email, password) => {
   return data;
 };
 
+export const verifyEmail = async (email, code) => {
+  const response = await fetch(`${BASE_URL}/auth/verify`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, code }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Verification failed");
+  }
+
+  return data;
+};
+
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {

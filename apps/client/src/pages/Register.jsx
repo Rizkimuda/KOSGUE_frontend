@@ -1,16 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { register } from "../services/api";
+import { register, verifyEmail } from "../services/api";
 
 function Register() {
   const navigate = useNavigate();
+  const [step, setStep] = useState("register"); // register | otp
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,17 +25,37 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setError("Password tidak sama");
+      setLoading(false);
       return;
     }
 
     try {
       await register(formData.username, formData.email, formData.password);
+      setStep("otp");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await verifyEmail(formData.email, otp);
+      alert("Verifikasi berhasil! Silakan login.");
       navigate("/login");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,87 +148,133 @@ function Register() {
           <div className="max-w-md mx-auto w-full">
             <header className="mb-10">
               <h2 className="text-2xl font-serif font-bold tracking-tight text-gold block mb-2">
-                Buat Akun
+                {step === "register" ? "Buat Akun" : "Verifikasi Email"}
               </h2>
               <p className="text-muted">
-                Sudah punya akun?{" "}
-                <Link
-                  to="/login"
-                  className="text-gold font-bold hover:underline"
-                >
-                  Masuk
-                </Link>
+                {step === "register" ? (
+                  <>
+                    Sudah punya akun?{" "}
+                    <Link
+                      to="/login"
+                      className="text-gold font-bold hover:underline"
+                    >
+                      Masuk
+                    </Link>
+                  </>
+                ) : (
+                  `Masukkan kode OTP yang telah dikirim ke ${formData.email}`
+                )}
               </p>
             </header>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              {error && (
-                <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                  {error}
+            {step === "register" ? (
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                {error && (
+                  <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-dark">
+                    Nama lengkap
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    placeholder="Nama kamu"
+                    required
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+                  />
                 </div>
-              )}
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-dark">
-                  Nama lengkap
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Nama kamu"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-dark">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="nama@email.com"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-dark">
-                  Kata sandi
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Minimal 8 karakter"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-dark">
-                  Konfirmasi kata sandi
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="Ulangi kata sandi"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
-                />
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-dark">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="nama@email.com"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-dark">
+                    Kata sandi
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Minimal 8 karakter"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-dark">
+                    Konfirmasi kata sandi
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Ulangi kata sandi"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mt-4"
-              >
-                Daftar
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mt-4 disabled:opacity-50"
+                >
+                  {loading ? "Memproses..." : "Daftar"}
+                </button>
+              </form>
+            ) : (
+              <form className="space-y-4" onSubmit={handleVerify}>
+                {error && (
+                  <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-dark">
+                    Kode OTP
+                  </label>
+                  <input
+                    type="text"
+                    name="otp"
+                    placeholder="Masukkan 6 digit kode"
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all text-center tracking-widest text-xl"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20 mt-4 disabled:opacity-50"
+                >
+                  {loading ? "Memverifikasi..." : "Verifikasi Email"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep("register")}
+                  className="w-full py-2 text-sm text-muted hover:text-dark transition-colors"
+                >
+                  Kembali ke Pendaftaran
+                </button>
+              </form>
+            )}
 
             <p className="mt-8 text-xs text-center text-muted leading-relaxed">
               Dengan daftar, kamu menyetujui{" "}
