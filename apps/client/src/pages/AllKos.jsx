@@ -2,6 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getKosList, upgradeToOwner } from "../services/api";
 import { CITIES } from "../utils/constants";
+import { showConfirm, showSuccess, showError } from "../utils/sweetAlert";
 
 function AllKos() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -85,17 +86,23 @@ function AllKos() {
   };
 
   const handleUpgradeToOwner = async () => {
-    if (window.confirm("Apakah Anda yakin ingin menjadi Juragan Kos?")) {
+    const result = await showConfirm({
+      title: "Jadi Juragan Kos?",
+      text: "Apakah Anda yakin ingin mendaftar sebagai pemilik kos?",
+      confirmButtonText: "Ya, Daftar",
+    });
+
+    if (result.isConfirmed) {
       try {
         await upgradeToOwner();
         // Update local storage and state
         const newUser = { ...user, role: "owner" };
         localStorage.setItem("user", JSON.stringify(newUser));
         setUser(newUser);
-        alert("Selamat! Anda sekarang adalah Juragan Kos.");
+        showSuccess("Berhasil!", "Selamat! Anda sekarang adalah Juragan Kos.");
       } catch (error) {
         console.error("Error upgrading to owner:", error);
-        alert("Gagal upgrade ke owner: " + error.message);
+        showError("Gagal", "Gagal upgrade ke owner: " + error.message);
       }
     }
   };
@@ -121,8 +128,8 @@ function AllKos() {
 
   return (
     <div className="min-h-screen bg-cream font-sans text-dark">
-      <header className="bg-dark">
-        <nav className="bg-dark/80 backdrop-blur-md border-b border-white/10">
+      <header className="relative bg-dark">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-dark/80 backdrop-blur-md border-b border-white/10">
           <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <Link
               to="/"
@@ -196,7 +203,7 @@ function AllKos() {
         </nav>
       </header>
 
-      <main className="py-12">
+      <main className="pt-32 pb-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-8">
             <div className="grid md:grid-cols-4 gap-4">

@@ -1,6 +1,7 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getKosBySlug, addReview } from "../services/api";
+import { showSuccess, showError, showAlert } from "../utils/sweetAlert";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -177,6 +178,7 @@ Terima kasih.`;
 
 function Detail() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [kos, setKos] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRating, setUserRating] = useState(5);
@@ -203,7 +205,11 @@ function Detail() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!isLoggedIn) {
-      alert("Silakan login untuk memberikan review");
+      showAlert(
+        "Login Diperlukan",
+        "Silakan login untuk memberikan review",
+        "info"
+      );
       return;
     }
     setSubmitting(true);
@@ -212,10 +218,10 @@ function Detail() {
       const data = await getKosBySlug(slug);
       setKos(data);
       setUserComment("");
-      alert("Review berhasil dikirim!");
+      showSuccess("Berhasil", "Review berhasil dikirim!");
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Gagal mengirim review");
+      showError("Gagal", "Gagal mengirim review");
     } finally {
       setSubmitting(false);
     }
@@ -257,8 +263,8 @@ function Detail() {
         />
         <div className="absolute inset-0 bg-linear-to-t from-dark/90 via-dark/40 to-transparent flex items-end pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full">
-            <Link
-              to="/"
+            <button
+              onClick={() => navigate(-1)}
               className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors font-medium"
             >
               <svg
@@ -274,8 +280,8 @@ function Detail() {
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 ></path>
               </svg>
-              Beranda
-            </Link>
+              Kembali
+            </button>
             <p className="text-gold font-bold tracking-wide uppercase text-sm mb-2">
               Kos Eksklusif
             </p>
@@ -596,8 +602,10 @@ function Detail() {
             <button
               onClick={() => {
                 if (!isLoggedIn) {
-                  alert(
-                    "Silakan login atau register terlebih dahulu untuk menjadwalkan survei."
+                  showAlert(
+                    "Login Diperlukan",
+                    "Silakan login atau register terlebih dahulu untuk menjadwalkan survei.",
+                    "info"
                   );
                   return;
                 }
@@ -632,8 +640,10 @@ function Detail() {
                     onClick={(e) => {
                       if (!isLoggedIn) {
                         e.preventDefault();
-                        alert(
-                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik."
+                        showAlert(
+                          "Login Diperlukan",
+                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik.",
+                          "info"
                         );
                       }
                     }}
@@ -648,8 +658,10 @@ function Detail() {
                     onClick={(e) => {
                       if (!isLoggedIn) {
                         e.preventDefault();
-                        alert(
-                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik."
+                        showAlert(
+                          "Login Diperlukan",
+                          "Silakan login atau register terlebih dahulu untuk menghubungi pemilik.",
+                          "info"
                         );
                       }
                     }}

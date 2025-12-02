@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createKos, getKosBySlug, updateKos } from "../services/api";
 import { CITIES } from "../utils/constants";
+import { showSuccess, showError } from "../utils/sweetAlert";
 import {
   MapContainer,
   TileLayer,
@@ -170,7 +171,7 @@ function KosForm() {
         newGalleryFiles.length + filesArray.length + formData.gallery.length >
         5
       ) {
-        alert("Maksimal total 5 foto galeri.");
+        showError("Gagal", "Maksimal total 5 foto galeri.");
         return;
       }
 
@@ -182,7 +183,7 @@ function KosForm() {
         }
       });
 
-      if (errorMsg) alert(errorMsg);
+      if (errorMsg) showError("Gagal", errorMsg);
 
       setNewGalleryFiles((prev) => [...prev, ...validFiles]);
     } else if (name === "owner_phone") {
@@ -285,9 +286,10 @@ function KosForm() {
       } else {
         await createKos(payload);
       }
+      await showSuccess("Berhasil", "Data kos berhasil disimpan");
       navigate(userRole === "owner" ? "/owner" : "/admin");
     } catch (error) {
-      alert("Gagal menyimpan data: " + error.message);
+      showError("Gagal", "Gagal menyimpan data: " + error.message);
     }
   };
 
@@ -296,6 +298,27 @@ function KosForm() {
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-10">
         <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-6">
           <div>
+            <button
+              onClick={() =>
+                navigate(userRole === "owner" ? "/owner" : "/admin")
+              }
+              className="text-sm text-gray-500 hover:text-[#d4af37] mb-2 flex items-center gap-1 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Kembali
+            </button>
             <h1 className="text-3xl font-serif font-bold text-[#1a1a1a]">
               {isEdit ? "Edit Data Kos" : "Tambah Kos Baru"}
             </h1>

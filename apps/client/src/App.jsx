@@ -10,11 +10,13 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import KosForm from "./pages/KosForm";
 import AllKos from "./pages/AllKos";
 import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <ScrollToTopButton />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getKosList, deleteKos } from "../services/api";
+import { showConfirm, showSuccess, showError } from "../utils/sweetAlert";
 
 function AdminDashboard() {
   const [kosList, setKosList] = useState([]);
@@ -25,12 +26,20 @@ function AdminDashboard() {
   };
 
   const handleDelete = async (slug) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus kos ini?")) {
+    const result = await showConfirm({
+      title: "Hapus Kos?",
+      text: "Apakah Anda yakin ingin menghapus kos ini? Tindakan ini tidak dapat dibatalkan.",
+      confirmButtonText: "Ya, Hapus",
+      icon: "warning",
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteKos(slug);
         fetchData();
+        showSuccess("Berhasil", "Kos berhasil dihapus");
       } catch (error) {
-        alert("Gagal menghapus kos");
+        showError("Gagal", "Gagal menghapus kos");
       }
     }
   };

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { register, verifyEmail } from "../services/api";
+import { showSuccess, showError } from "../utils/sweetAlert";
 
 function Register() {
   const navigate = useNavigate();
@@ -50,10 +51,14 @@ function Register() {
 
     try {
       await verifyEmail(formData.email, otp);
-      alert("Verifikasi berhasil! Silakan login.");
+      await showSuccess(
+        "Verifikasi Berhasil",
+        "Akun Anda telah aktif. Silakan login."
+      );
       navigate("/login");
     } catch (err) {
       setError(err.message);
+      showError("Verifikasi Gagal", err.message);
     } finally {
       setLoading(false);
     }
