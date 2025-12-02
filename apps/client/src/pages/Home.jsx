@@ -63,13 +63,13 @@ function Home() {
         setKosList(data);
         setFilteredKosList(data);
         
-        // Get top 3 kos by rating
+        // Get top 9 kos by rating
         const sortedByRating = [...data].sort((a, b) => {
           const ratingA = parseFloat(a.rating || 0);
           const ratingB = parseFloat(b.rating || 0);
           return ratingB - ratingA;
         });
-        setTopRatedKos(sortedByRating.slice(0, 3));
+        setTopRatedKos(sortedByRating.slice(0, 9));
       } catch (error) {
         console.error("Error fetching kos list:", error);
       }
