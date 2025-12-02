@@ -58,17 +58,12 @@ const login = async (email, password) => {
   };
 };
 
-const upgradeToOwner = async (
-  userId,
-  { fullName, businessNumber, ktpNumber }
-) => {
+// Upgrade role user menjadi owner tanpa menyimpan data tambahan dari form
+const upgradeToOwner = async (userId) => {
   const { data, error } = await supabase
     .from("users")
     .update({
       role: "owner",
-      full_name: fullName,
-      business_number: businessNumber,
-      ktp_number: ktpNumber,
     })
     .eq("id", userId)
     .select()

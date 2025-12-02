@@ -48,22 +48,13 @@ const login = async (req, res) => {
   }
 };
 
+// Endpoint upgrade owner:
+// - Tidak menyimpan data dari form (hanya "hiasan" di frontend)
+// - Hanya mengubah role user menjadi "owner" berdasarkan user yang sedang login
 const upgradeToOwner = async (req, res) => {
-  const { fullName, businessNumber, ktpNumber } = req.body;
-
-  if (!fullName || !businessNumber || !ktpNumber) {
-    return res
-      .status(400)
-      .json({ message: "Nama lengkap, nomor bisnis, dan nomor KTP wajib diisi" });
-  }
-
   try {
     const userId = req.user.id;
-    const updatedUser = await authService.upgradeToOwner(userId, {
-      fullName,
-      businessNumber,
-      ktpNumber,
-    });
+    const updatedUser = await authService.upgradeToOwner(userId);
     res.json({ message: "Berhasil menjadi Owner", user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
