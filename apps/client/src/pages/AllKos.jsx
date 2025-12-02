@@ -9,7 +9,9 @@ function AllKos() {
   const [filteredKosList, setFilteredKosList] = useState([]);
   const [user, setUser] = useState(null);
   const [searchCity, setSearchCity] = useState(searchParams.get("city") || "");
-  const [searchPrice, setSearchPrice] = useState(searchParams.get("price") || "");
+  const [searchPrice, setSearchPrice] = useState(
+    searchParams.get("price") || ""
+  );
   const [sortBy, setSortBy] = useState("rating"); // rating, price-asc, price-desc
 
   useEffect(() => {
@@ -330,4 +332,3 @@ function AllKos() {
 }
 
 export default AllKos;
-

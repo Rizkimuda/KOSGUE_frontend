@@ -730,7 +730,9 @@ function KosForm() {
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
             <button
               type="button"
-              onClick={() => navigate(userRole === "owner" ? "/owner" : "/admin")}
+              onClick={() =>
+                navigate(userRole === "owner" ? "/owner" : "/admin")
+              }
               className="px-8 py-4 bg-white text-gray-500 rounded-xl hover:bg-gray-50 transition-colors font-bold border border-gray-200"
             >
               Batal

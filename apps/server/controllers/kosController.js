@@ -151,7 +151,9 @@ const updateKos = async (req, res) => {
     }
 
     if (req.user.role !== "admin" && existingKos.owner_id !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized to update this kos" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to update this kos" });
     }
 
     const kosData = await processKosData(req);
@@ -177,7 +179,9 @@ const deleteKos = async (req, res) => {
     }
 
     if (req.user.role !== "admin" && existingKos.owner_id !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized to delete this kos" });
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this kos" });
     }
 
     const deletedKos = await kosService.deleteKos(slug);

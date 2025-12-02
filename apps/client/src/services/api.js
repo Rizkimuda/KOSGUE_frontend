@@ -136,7 +136,8 @@ export const upgradeToOwner = async () => {
     headers: getAuthHeaders(),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Failed to upgrade to owner");
+  if (!response.ok)
+    throw new Error(data.message || "Failed to upgrade to owner");
   return data;
 };
 

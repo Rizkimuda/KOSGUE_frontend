@@ -62,7 +62,7 @@ function Home() {
         const data = await getKosList();
         setKosList(data);
         setFilteredKosList(data);
-        
+
         // Get top 9 kos by rating
         const sortedByRating = [...data].sort((a, b) => {
           const ratingA = parseFloat(a.rating || 0);
@@ -110,7 +110,7 @@ function Home() {
     if (searchPrice) {
       params.set("price", searchPrice);
     }
-    
+
     const queryString = params.toString();
     navigate(`/all-kos${queryString ? `?${queryString}` : ""}`);
   };
