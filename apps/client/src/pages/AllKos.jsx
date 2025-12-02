@@ -108,7 +108,9 @@ function AllKos() {
     }
 
     try {
-      await upgradeToOwner(ownerFullName, businessNumber, ktpNumber);
+      // Hanya validasi bahwa semua field terisi,
+      // data tidak disimpan ke mana pun, langsung upgrade ke owner
+      await upgradeToOwner();
       const newUser = { ...user, role: "owner" };
       localStorage.setItem("user", JSON.stringify(newUser));
       setUser(newUser);
