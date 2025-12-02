@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createKos, getKosBySlug, updateKos } from "../services/api";
 import { CITIES } from "../utils/constants";
 import { showSuccess, showError } from "../utils/sweetAlert";
+import { compressImage } from "../utils/imageCompression";
 import {
   MapContainer,
   TileLayer,
@@ -80,6 +81,7 @@ function KosForm() {
   const [newGalleryFiles, setNewGalleryFiles] = useState([]); // New files to upload
   const [position, setPosition] = useState(null);
   const [mapCenter, setMapCenter] = useState([-6.2, 106.816666]); // Default Jakarta
+  const [isCompressing, setIsCompressing] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -155,13 +157,22 @@ function KosForm() {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
     if (name === "image" && files && files[0]) {
-      setFormData({
-        ...formData,
-        image: files[0],
-      });
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(files[0]);
+        setFormData((prev) => ({
+          ...prev,
+          image: compressed,
+        }));
+      } catch (error) {
+        console.error("Compression failed", error);
+        showError("Gagal", "Gagal memproses gambar");
+      } finally {
+        setIsCompressing(false);
+      }
     } else if (name === "gallery" && files) {
       const filesArray = Array.from(files);
       const validFiles = [];
@@ -176,8 +187,8 @@ function KosForm() {
       }
 
       filesArray.forEach((file) => {
-        if (file.size > 3 * 1024 * 1024) {
-          errorMsg = `File ${file.name} melebihi 3MB.`;
+        if (file.size > 5 * 1024 * 1024) {
+          errorMsg = `File ${file.name} melebihi 5MB.`;
         } else {
           validFiles.push(file);
         }
@@ -185,7 +196,20 @@ function KosForm() {
 
       if (errorMsg) showError("Gagal", errorMsg);
 
-      setNewGalleryFiles((prev) => [...prev, ...validFiles]);
+      if (validFiles.length > 0) {
+        setIsCompressing(true);
+        try {
+          const compressedFiles = await Promise.all(
+            validFiles.map((file) => compressImage(file))
+          );
+          setNewGalleryFiles((prev) => [...prev, ...compressedFiles]);
+        } catch (error) {
+          console.error("Gallery compression failed", error);
+          showError("Gagal", "Gagal memproses gambar galeri");
+        } finally {
+          setIsCompressing(false);
+        }
+      }
     } else if (name === "owner_phone") {
       // Auto-generate WhatsApp link
       let phone = value;
@@ -203,10 +227,10 @@ function KosForm() {
         owner_whatsapp: `https://wa.me/${cleanPhone}`,
       }));
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: value,
-      });
+      }));
     }
   };
 
@@ -762,9 +786,12 @@ function KosForm() {
             </button>
             <button
               type="submit"
-              className="px-8 py-4 bg-[#1a1a1a] text-[#d4af37] font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              disabled={isCompressing}
+              className={`px-8 py-4 bg-[#1a1a1a] text-[#d4af37] font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
+                isCompressing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Simpan Data
+              {isCompressing ? "Memproses Gambar..." : "Simpan Data"}
             </button>
           </div>
         </form>
