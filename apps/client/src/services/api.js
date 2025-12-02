@@ -129,3 +129,21 @@ export const addReview = async (slug, rating, comment) => {
   if (!response.ok) throw new Error("Failed to add review");
   return response.json();
 };
+
+export const upgradeToOwner = async () => {
+  const response = await fetch(`${BASE_URL}/auth/upgrade-to-owner`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Failed to upgrade to owner");
+  return data;
+};
+
+export const getOwnerKos = async () => {
+  const response = await fetch(`${BASE_URL}/kos/owner/my-kos`, {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Failed to fetch owner kos");
+  return response.json();
+};

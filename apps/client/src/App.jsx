@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Detail from "./pages/Detail";
 import Terms from "./pages/Terms";
 import AdminDashboard from "./pages/AdminDashboard";
+import OwnerDashboard from "./pages/OwnerDashboard";
 import KosForm from "./pages/KosForm";
 import AllKos from "./pages/AllKos";
 import ScrollToTop from "./components/ScrollToTop";
@@ -24,6 +25,9 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/kos/new" element={<KosForm />} />
         <Route path="/admin/kos/edit/:slug" element={<KosForm />} />
+        <Route path="/owner" element={<OwnerDashboard />} />
+        <Route path="/owner/kos/new" element={<KosForm />} />
+        <Route path="/owner/kos/edit/:slug" element={<KosForm />} />
       </Routes>
     </BrowserRouter>
   );

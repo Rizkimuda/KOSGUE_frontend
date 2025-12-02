@@ -49,6 +49,14 @@ function KosForm() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const isEdit = !!slug;
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      setUserRole(user.role);
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -277,7 +285,7 @@ function KosForm() {
       } else {
         await createKos(payload);
       }
-      navigate("/admin");
+      navigate(userRole === "owner" ? "/owner" : "/admin");
     } catch (error) {
       alert("Gagal menyimpan data: " + error.message);
     }
@@ -722,7 +730,7 @@ function KosForm() {
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
             <button
               type="button"
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate(userRole === "owner" ? "/owner" : "/admin")}
               className="px-8 py-4 bg-white text-gray-500 rounded-xl hover:bg-gray-50 transition-colors font-bold border border-gray-200"
             >
               Batal

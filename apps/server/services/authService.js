@@ -58,8 +58,21 @@ const login = async (email, password) => {
   };
 };
 
+const upgradeToOwner = async (userId) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({ role: "owner" })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+};
+
 module.exports = {
   register,
   login,
   verifyEmail,
+  upgradeToOwner,
 };

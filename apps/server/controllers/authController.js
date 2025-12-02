@@ -48,8 +48,19 @@ const login = async (req, res) => {
   }
 };
 
+const upgradeToOwner = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updatedUser = await authService.upgradeToOwner(userId);
+    res.json({ message: "Berhasil menjadi Owner", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   verify,
+  upgradeToOwner,
 };

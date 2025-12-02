@@ -3,14 +3,16 @@ const router = express.Router();
 const kosController = require("../controllers/kosController");
 const authenticateToken = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
+const ownerMiddleware = require("../middleware/ownerMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 router.get("/", kosController.getAllKos);
+router.get("/owner/my-kos", authenticateToken, kosController.getOwnerKos);
 router.get("/:slug", kosController.getKosBySlug);
 router.post(
   "/",
   authenticateToken,
-  adminMiddleware,
+  ownerMiddleware,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 5 },
@@ -20,7 +22,7 @@ router.post(
 router.put(
   "/:slug",
   authenticateToken,
-  adminMiddleware,
+  ownerMiddleware,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "gallery", maxCount: 5 },
@@ -30,7 +32,7 @@ router.put(
 router.delete(
   "/:slug",
   authenticateToken,
-  adminMiddleware,
+  ownerMiddleware,
   kosController.deleteKos
 );
 

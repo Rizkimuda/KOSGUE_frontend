@@ -9,6 +9,16 @@ const getAllKos = async (req, res) => {
   }
 };
 
+const getOwnerKos = async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const kosList = await kosService.getKosByOwner(ownerId);
+    res.json(kosList);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getKosBySlug = async (req, res) => {
   const { slug } = req.params;
   try {
@@ -116,6 +126,11 @@ const createKos = async (req, res) => {
 
     const kosData = await processKosData(req);
 
+    // Add owner_id from authenticated user
+    if (req.user && req.user.id) {
+      kosData.owner_id = req.user.id;
+    }
+
     console.log("Saving to DB:", kosData);
 
     const newKos = await kosService.createKos(kosData);
@@ -129,6 +144,16 @@ const createKos = async (req, res) => {
 const updateKos = async (req, res) => {
   const { slug } = req.params;
   try {
+    // Check ownership
+    const existingKos = await kosService.getKosBySlug(slug);
+    if (!existingKos) {
+      return res.status(404).json({ message: "Kos not found" });
+    }
+
+    if (req.user.role !== "admin" && existingKos.owner_id !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized to update this kos" });
+    }
+
     const kosData = await processKosData(req);
 
     const updatedKos = await kosService.updateKos(slug, kosData);
@@ -145,6 +170,16 @@ const updateKos = async (req, res) => {
 const deleteKos = async (req, res) => {
   const { slug } = req.params;
   try {
+    // Check ownership
+    const existingKos = await kosService.getKosBySlug(slug);
+    if (!existingKos) {
+      return res.status(404).json({ message: "Kos not found" });
+    }
+
+    if (req.user.role !== "admin" && existingKos.owner_id !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized to delete this kos" });
+    }
+
     const deletedKos = await kosService.deleteKos(slug);
     if (!deletedKos) {
       return res.status(404).json({ message: "Kos not found" });
@@ -171,6 +206,7 @@ const addReview = async (req, res) => {
 
 module.exports = {
   getAllKos,
+  getOwnerKos,
   getKosBySlug,
   createKos,
   updateKos,

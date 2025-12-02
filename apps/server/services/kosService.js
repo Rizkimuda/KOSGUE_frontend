@@ -12,6 +12,20 @@ const getAllKos = async () => {
   }));
 };
 
+const getKosByOwner = async (ownerId) => {
+  const result = await pool.query("SELECT * FROM kos WHERE owner_id = $1", [
+    ownerId,
+  ]);
+  return result.rows.map((row) => ({
+    ...row,
+    owner: {
+      name: row.owner_name,
+      phone: row.owner_phone,
+      whatsapp: row.owner_whatsapp,
+    },
+  }));
+};
+
 const getKosBySlug = async (slug) => {
   const result = await pool.query("SELECT * FROM kos WHERE slug = $1", [slug]);
   if (result.rows.length === 0) {
@@ -76,14 +90,15 @@ const createKos = async (data) => {
     owner,
     latitude,
     longitude,
+    owner_id,
   } = data;
 
   const query = `
     INSERT INTO kos (
       slug, name, city, price, image, summary, size, capacity, rating, reviews, 
       facilities, services, gallery, owner_name, owner_phone, owner_whatsapp,
-      latitude, longitude
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      latitude, longitude, owner_id
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
     RETURNING *
   `;
 
@@ -106,6 +121,7 @@ const createKos = async (data) => {
     owner?.whatsapp || null,
     latitude || null,
     longitude || null,
+    owner_id || null,
   ];
 
   const result = await pool.query(query, values);
@@ -189,6 +205,7 @@ const deleteKos = async (slug) => {
 
 module.exports = {
   getAllKos,
+  getKosByOwner,
   getKosBySlug,
   createKos,
   updateKos,

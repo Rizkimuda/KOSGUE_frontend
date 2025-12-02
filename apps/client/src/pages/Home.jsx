@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getKosList } from "../services/api";
+import { getKosList, upgradeToOwner } from "../services/api";
 import { CITIES } from "../utils/constants";
 
 const facilities = [
@@ -85,6 +85,22 @@ function Home() {
     window.location.reload();
   };
 
+  const handleUpgradeToOwner = async () => {
+    if (window.confirm("Apakah Anda yakin ingin menjadi Juragan Kos?")) {
+      try {
+        await upgradeToOwner();
+        // Update local storage and state
+        const newUser = { ...user, role: "owner" };
+        localStorage.setItem("user", JSON.stringify(newUser));
+        setUser(newUser);
+        alert("Selamat! Anda sekarang adalah Juragan Kos.");
+      } catch (error) {
+        console.error("Error upgrading to owner:", error);
+        alert("Gagal upgrade ke owner: " + error.message);
+      }
+    }
+  };
+
   const handleSearch = () => {
     // Navigate to all-kos page with search parameters
     const params = new URLSearchParams();
@@ -140,6 +156,22 @@ function Home() {
                     >
                       Dashboard
                     </Link>
+                  )}
+                  {user.role === "owner" && (
+                    <Link
+                      to="/owner"
+                      className="text-sm font-medium text-gold hover:text-white transition-colors"
+                    >
+                      Owner Dashboard
+                    </Link>
+                  )}
+                  {user.role === "user" && (
+                    <button
+                      onClick={handleUpgradeToOwner}
+                      className="text-sm font-medium text-gold hover:text-white transition-colors"
+                    >
+                      Jadi Juragan Kos
+                    </button>
                   )}
                   <button
                     onClick={handleLogout}
