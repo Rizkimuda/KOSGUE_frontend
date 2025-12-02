@@ -1,60 +1,65 @@
-const pool = require("../config/db");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const supabase = require("../config/supabase");
 
 const register = async (username, email, password) => {
-  const checkUser = await pool.query(
-    "SELECT * FROM users WHERE email = $1 OR username = $2",
-    [email, username]
-  );
+  // 1. Daftar ke Supabase Auth
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        username: username, // Disimpan di metadata, lalu dicopy Trigger ke public.users
+        role: "user",
+      },
+    },
+  });
 
-  if (checkUser.rows.length > 0) {
-    throw new Error("Username or Email already exists");
-  }
+  if (error) throw new Error(error.message);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const result = await pool.query(
-    "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, username, email, role",
-    [username, email, hashedPassword, "user"]
-  );
+  return data.user;
+};
 
-  return result.rows[0];
+const verifyEmail = async (email, token) => {
+  // 2. Verifikasi OTP/Token
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "signup",
+  });
+
+  if (error) throw new Error(error.message);
+
+  return { message: "Email verified successfully", session: data.session };
 };
 
 const login = async (email, password) => {
-  const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+  // 3. Login ke Supabase Auth
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
-  ]);
+    password,
+  });
 
-  if (result.rows.length === 0) {
-    throw new Error("Invalid email or password");
-  }
+  if (error) throw new Error(error.message);
 
-  const user = result.rows[0];
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    throw new Error("Invalid email or password");
-  }
-
-  const token = jwt.sign(
-    { id: user.id, username: user.username, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+  // 4. Ambil Role dari tabel public.users
+  const { data: userData, error: userError } = await supabase
+    .from("users")
+    .select("role, username")
+    .eq("id", data.user.id)
+    .single();
 
   return {
     user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
+      id: data.user.id,
+      email: data.user.email,
+      username: userData?.username,
+      role: userData?.role || "user",
     },
-    token,
+    token: data.session.access_token,
   };
 };
 
 module.exports = {
   register,
   login,
+  verifyEmail,
 };

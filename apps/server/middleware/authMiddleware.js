@@ -1,7 +1,6 @@
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const supabase = require("../config/supabase");
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
@@ -12,8 +11,29 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    // 1. Verifikasi Token ke Supabase Auth
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+      return res.status(403).json({ message: "Invalid token." });
+    }
+
+    // 2. Ambil Role dari tabel public.users
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: userData?.role || "user",
+    };
+
     next();
   } catch (error) {
     res.status(403).json({ message: "Invalid token." });

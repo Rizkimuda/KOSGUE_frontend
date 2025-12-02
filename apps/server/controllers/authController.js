@@ -9,7 +9,25 @@ const register = async (req, res) => {
 
   try {
     const user = await authService.register(username, email, password);
-    res.status(201).json({ message: "User registered successfully", user });
+    res.status(201).json({
+      message: "Registrasi berhasil. Silakan cek email untuk kode OTP.",
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const verify = async (req, res) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ message: "Email and code are required" });
+  }
+
+  try {
+    const result = await authService.verifyEmail(email, code);
+    res.json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -33,4 +51,5 @@ const login = async (req, res) => {
 module.exports = {
   register,
   login,
+  verify,
 };
