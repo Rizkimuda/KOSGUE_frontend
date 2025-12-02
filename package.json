@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix apps/server\" \"npm run dev --prefix apps/client\"",
-    "install-all": "npm install && npm install --prefix apps/server && npm install --prefix apps/client",
-    "postinstall": "npm run install-all",
+    "install-all": "npm install --prefix apps/server && npm install --prefix apps/client",
     "build": "npm run build --prefix apps/client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
