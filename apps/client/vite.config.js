@@ -5,15 +5,13 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: "public",
-  envDir: "../",
   resolve: {
     alias: {
-      "/src": path.resolve(process.cwd(), "src"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
-    outDir: "../dist",
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
