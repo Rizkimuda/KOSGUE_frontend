@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getKosList } from "../services/api";
 import { CITIES } from "../utils/constants";
@@ -43,8 +43,10 @@ const testimonials = [
 ];
 
 function Home() {
+  const navigate = useNavigate();
   const [kosList, setKosList] = useState([]);
   const [filteredKosList, setFilteredKosList] = useState([]);
+  const [topRatedKos, setTopRatedKos] = useState([]);
   const [user, setUser] = useState(null);
   const [searchCity, setSearchCity] = useState("");
   const [searchPrice, setSearchPrice] = useState("");
@@ -60,6 +62,14 @@ function Home() {
         const data = await getKosList();
         setKosList(data);
         setFilteredKosList(data);
+        
+        // Get top 3 kos by rating
+        const sortedByRating = [...data].sort((a, b) => {
+          const ratingA = parseFloat(a.rating || 0);
+          const ratingB = parseFloat(b.rating || 0);
+          return ratingB - ratingA;
+        });
+        setTopRatedKos(sortedByRating.slice(0, 3));
       } catch (error) {
         console.error("Error fetching kos list:", error);
       }
@@ -76,37 +86,17 @@ function Home() {
   };
 
   const handleSearch = () => {
-    let results = kosList;
-
+    // Navigate to all-kos page with search parameters
+    const params = new URLSearchParams();
     if (searchCity) {
-      results = results.filter((kos) =>
-        kos.city.toLowerCase().includes(searchCity.toLowerCase())
-      );
+      params.set("city", searchCity);
     }
-
     if (searchPrice) {
-      results = results.filter((kos) => {
-        // Parse price string "Rp 300.000 / bulan" -> 300000
-        const price = parseInt(kos.price.replace(/\D/g, ""));
-
-        if (searchPrice === "<1.5") {
-          return price < 1500000;
-        } else if (searchPrice === "1.5-2") {
-          return price >= 1500000 && price <= 2000000;
-        } else if (searchPrice === ">2") {
-          return price > 2000000;
-        }
-        return true;
-      });
+      params.set("price", searchPrice);
     }
-
-    setFilteredKosList(results);
-
-    // Scroll to featured section
-    const featuredSection = document.getElementById("featured");
-    if (featuredSection) {
-      featuredSection.scrollIntoView({ behavior: "smooth" });
-    }
+    
+    const queryString = params.toString();
+    navigate(`/all-kos${queryString ? `?${queryString}` : ""}`);
   };
 
   return (
@@ -340,16 +330,19 @@ function Home() {
                   Referensi hunian favorit minggu ini.
                 </h2>
               </div>
-              <button className="hidden md:block text-gold font-bold hover:text-[#c5a575] transition-colors">
+              <Link
+                to="/all-kos"
+                className="hidden md:block text-gold font-bold hover:text-[#c5a575] transition-colors"
+              >
                 Lihat semua &rarr;
-              </button>
+              </Link>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredKosList.length > 0 ? (
-                filteredKosList.map((item) => (
+              {topRatedKos.length > 0 ? (
+                topRatedKos.map((item) => (
                   <article
-                    key={item.name}
+                    key={item.slug || item.name}
                     className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                   >
                     <div className="relative aspect-4/3 overflow-hidden">
@@ -359,7 +352,7 @@ function Home() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
-                        {item.rating} ★
+                        {item.rating || 0} ★
                       </div>
                     </div>
                     <div className="p-6">
@@ -382,26 +375,19 @@ function Home() {
               ) : (
                 <div className="col-span-full text-center py-12">
                   <p className="text-xl text-muted">
-                    Tidak ada kos yang sesuai dengan kriteria pencarian.
+                    Belum ada kos yang tersedia.
                   </p>
-                  <button
-                    onClick={() => {
-                      setSearchCity("");
-                      setSearchPrice("");
-                      setFilteredKosList(kosList);
-                    }}
-                    className="mt-4 text-gold font-bold hover:underline"
-                  >
-                    Reset Pencarian
-                  </button>
                 </div>
               )}
             </div>
 
             <div className="mt-12 text-center md:hidden">
-              <button className="text-gold font-bold hover:text-[#c5a575] transition-colors">
+              <Link
+                to="/all-kos"
+                className="text-gold font-bold hover:text-[#c5a575] transition-colors"
+              >
                 Lihat semua &rarr;
-              </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -485,12 +471,12 @@ function Home() {
               >
                 Buat Akun Gratis
               </Link>
-              <a
-                href="#featured"
+              <Link
+                to="/all-kos"
                 className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark text-center inline-block"
               >
                 Eksplor semua kos
-              </a>
+              </Link>
             </div>
           </div>
         </section>
