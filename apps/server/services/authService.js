@@ -58,10 +58,18 @@ const login = async (email, password) => {
   };
 };
 
-const upgradeToOwner = async (userId) => {
+const upgradeToOwner = async (
+  userId,
+  { fullName, businessNumber, ktpNumber }
+) => {
   const { data, error } = await supabase
     .from("users")
-    .update({ role: "owner" })
+    .update({
+      role: "owner",
+      full_name: fullName,
+      business_number: businessNumber,
+      ktp_number: ktpNumber,
+    })
     .eq("id", userId)
     .select()
     .single();

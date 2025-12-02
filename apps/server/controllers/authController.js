@@ -49,9 +49,21 @@ const login = async (req, res) => {
 };
 
 const upgradeToOwner = async (req, res) => {
+  const { fullName, businessNumber, ktpNumber } = req.body;
+
+  if (!fullName || !businessNumber || !ktpNumber) {
+    return res
+      .status(400)
+      .json({ message: "Nama lengkap, nomor bisnis, dan nomor KTP wajib diisi" });
+  }
+
   try {
     const userId = req.user.id;
-    const updatedUser = await authService.upgradeToOwner(userId);
+    const updatedUser = await authService.upgradeToOwner(userId, {
+      fullName,
+      businessNumber,
+      ktpNumber,
+    });
     res.json({ message: "Berhasil menjadi Owner", user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: error.message });

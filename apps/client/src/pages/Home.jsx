@@ -51,6 +51,10 @@ function Home() {
   const [user, setUser] = useState(null);
   const [searchCity, setSearchCity] = useState("");
   const [searchPrice, setSearchPrice] = useState("");
+  const [showOwnerForm, setShowOwnerForm] = useState(false);
+  const [ownerFullName, setOwnerFullName] = useState("");
+  const [businessNumber, setBusinessNumber] = useState("");
+  const [ktpNumber, setKtpNumber] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -86,25 +90,37 @@ function Home() {
     window.location.reload();
   };
 
-  const handleUpgradeToOwner = async () => {
-    const result = await showConfirm({
-      title: "Jadi Juragan Kos?",
-      text: "Apakah Anda yakin ingin mendaftar sebagai pemilik kos?",
-      confirmButtonText: "Ya, Daftar",
-    });
+  const handleOpenOwnerForm = () => {
+    setOwnerFullName(user?.username || "");
+    setBusinessNumber("");
+    setKtpNumber("");
+    setShowOwnerForm(true);
+  };
 
-    if (result.isConfirmed) {
-      try {
-        await upgradeToOwner();
-        // Update local storage and state
-        const newUser = { ...user, role: "owner" };
-        localStorage.setItem("user", JSON.stringify(newUser));
-        setUser(newUser);
-        showSuccess("Berhasil!", "Selamat! Anda sekarang adalah Juragan Kos.");
-      } catch (error) {
-        console.error("Error upgrading to owner:", error);
-        showError("Gagal", "Gagal upgrade ke owner: " + error.message);
-      }
+  const handleSubmitOwnerForm = async (e) => {
+    e.preventDefault();
+
+    if (!ownerFullName || !businessNumber || !ktpNumber) {
+      showError(
+        "Data belum lengkap",
+        "Nama lengkap, nomor bisnis, dan nomor KTP wajib diisi."
+      );
+      return;
+    }
+
+    try {
+      await upgradeToOwner(ownerFullName, businessNumber, ktpNumber);
+      const newUser = { ...user, role: "owner" };
+      localStorage.setItem("user", JSON.stringify(newUser));
+      setUser(newUser);
+      setShowOwnerForm(false);
+      showSuccess(
+        "Berhasil!",
+        "Selamat! Anda sekarang adalah Juragan Kos."
+      );
+    } catch (error) {
+      console.error("Error upgrading to owner:", error);
+      showError("Gagal", "Gagal upgrade ke owner: " + error.message);
     }
   };
 
@@ -174,7 +190,7 @@ function Home() {
                   )}
                   {user.role === "user" && (
                     <button
-                      onClick={handleUpgradeToOwner}
+                      onClick={handleOpenOwnerForm}
                       className="text-sm font-medium text-gold hover:text-white transition-colors"
                     >
                       Jadi Juragan Kos
@@ -537,6 +553,72 @@ function Home() {
           </div>
         </div>
       </footer>
+
+      {showOwnerForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-xl font-serif font-bold mb-4 text-dark">
+              Daftar Jadi Juragan Kos
+            </h2>
+            <p className="text-sm text-muted mb-4">
+              Lengkapi data berikut untuk mendaftar sebagai pemilik kos.
+            </p>
+            <form onSubmit={handleSubmitOwnerForm} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  value={ownerFullName}
+                  onChange={(e) => setOwnerFullName(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nama lengkap sesuai KTP"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nomor Telepon Bisnis
+                </label>
+                <input
+                  type="text"
+                  value={businessNumber}
+                  onChange={(e) => setBusinessNumber(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nomor telepon bisnis"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nomor KTP
+                </label>
+                <input
+                  type="text"
+                  value={ktpNumber}
+                  onChange={(e) => setKtpNumber(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nomor KTP"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOwnerForm(false)}
+                  className="px-4 py-2 text-sm font-medium text-muted hover:text-dark transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+                >
+                  Simpan & Jadi Juragan Kos
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

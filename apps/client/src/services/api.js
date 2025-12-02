@@ -130,10 +130,19 @@ export const addReview = async (slug, rating, comment) => {
   return response.json();
 };
 
-export const upgradeToOwner = async () => {
+export const upgradeToOwner = async (
+  fullName,
+  businessNumber,
+  ktpNumber
+) => {
   const response = await fetch(`${BASE_URL}/auth/upgrade-to-owner`, {
     method: "POST",
     headers: getAuthHeaders(),
+    body: JSON.stringify({
+      fullName,
+      businessNumber,
+      ktpNumber,
+    }),
   });
   const data = await response.json();
   if (!response.ok)
