@@ -114,10 +114,7 @@ function Home() {
       localStorage.setItem("user", JSON.stringify(newUser));
       setUser(newUser);
       setShowOwnerForm(false);
-      showSuccess(
-        "Berhasil!",
-        "Selamat! Anda sekarang adalah Juragan Kos."
-      );
+      showSuccess("Berhasil!", "Selamat! Anda sekarang adalah Juragan Kos.");
     } catch (error) {
       console.error("Error upgrading to owner:", error);
       showError("Gagal", "Gagal upgrade ke owner: " + error.message);
@@ -226,7 +223,7 @@ function Home() {
         <div className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col justify-center">
           <div className="absolute inset-0 z-0">
             <img
-              src="/heroimage.webp"
+              src="/heroImage.webp"
               alt="Hero Background"
               className="w-full h-full object-cover"
             />
