@@ -78,12 +78,11 @@ function Login() {
               Komunitas KosGue
             </span>
             <h1 className="text-4xl font-serif font-bold leading-tight mb-6">
-              Masuk dan lanjutkan pencarian kos impianmu dengan kurasi
-              rekomendasi personal dari kami.
+              Lanjutkan pencarian kos impianmu, semudah belanja online.
             </h1>
             <p className="text-white/80 text-lg leading-relaxed">
-              Simpan favorit, pantau status booking, dan dapatkan akses ke promo
-              penghuni baru. Semua bisa kamu lakukan di satu tempat.
+              Simpan kos favorit, chat langsung dengan pemilik, dan atur jadwal
+              survei lokasi. Semua riwayat pencarianmu tersimpan aman di sini.
             </p>
           </div>
           <div className="relative z-10 text-sm text-white/60">

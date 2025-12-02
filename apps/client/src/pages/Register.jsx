@@ -111,14 +111,13 @@ function Register() {
               Selangkah lagi
             </span>
             <h1 className="text-4xl font-serif font-bold leading-tight mb-6">
-              Buat akun KosGue dan nikmati pengalaman mencari kos yang intuitif,
-              transparan, dan terkurasi.
+              Satu akun untuk akses ribuan pilihan kos tanpa perantara.
             </h1>
             <ul className="space-y-4 text-white/80 text-lg">
               {[
-                "Simulasi biaya dan reminder pembayaran otomatis.",
-                "Kontak langsung pemilik kos & dukungan konsultan.",
-                "Reward poin setiap kali memperpanjang sewa.",
+                "Foto asli, harga jelas tanpa biaya tersembunyi, dan lokasi akurat.",
+                "Tanya jawab dan atur janji temu langsung dengan pemilik kos via WhatsApp.",
+                "Buat daftar kos favoritmu dan bandingkan fasilitasnya dengan mudah.",
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <svg
@@ -148,7 +147,7 @@ function Register() {
           <div className="max-w-md mx-auto w-full">
             <header className="mb-10">
               <h2 className="text-2xl font-serif font-bold tracking-tight text-gold block mb-2">
-                {step === "register" ? "Buat Akun" : "Verifikasi Email"}
+                {step === "register" ? "Buat Akun Baru" : "Verifikasi Email"}
               </h2>
               <p className="text-muted">
                 {step === "register" ? (
@@ -158,7 +157,7 @@ function Register() {
                       to="/login"
                       className="text-gold font-bold hover:underline"
                     >
-                      Masuk
+                      Masuk di Sini
                     </Link>
                   </>
                 ) : (
