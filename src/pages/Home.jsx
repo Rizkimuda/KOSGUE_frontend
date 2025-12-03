@@ -1,54 +1,141 @@
-import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import UserMenu from "../components/UserMenu";
-import { useMemo } from "react";
-import kosList from "../data/kosList";
-import { formatPrice } from "../utils/formatPrice";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getKosList, upgradeToOwner } from "../services/api";
+import { CITIES } from "../utils/constants";
+import { showConfirm, showSuccess, showError } from "../utils/sweetAlert";
 
 const facilities = [
   {
-    title: "Kamar Luas",
-    description: "Tempat tidur queen, lemari besar, dan meja kerja nyaman.",
+    title: "Pilihan Kos",
+    description:
+      "Para pemilik kos menyediakan kos siap huni dengan berbagai kelengkapan furnitur.",
   },
   {
-    title: "Area Komunal",
-    description: "Ruang santai dengan pantry modern dan kursi empuk.",
+    title: "Fasilitas Umum",
+    description:
+      "Temukan hunian dengan fasilitas penunjang seperti Wi-Fi, dapur, hingga area parkir luas.",
   },
   {
-    title: "Keamanan 24 Jam",
-    description: "Akses kartu, CCTV, serta petugas siap sedia.",
+    title: "Keamanan Terjaga",
+    description:
+      "Cari kos dengan fitur keamanan seperti akses 24 jam, CCTV, atau penjaga kos",
   },
 ];
 
 const testimonials = [
   {
-    name: "Rafi Hidayat",
-    role: "Product Designer",
+    name: "El Fahreza Sufi",
+    role: "Prompt Engineer",
     message:
-      "KosGue membantu saya menemukan kos dekat kantor dalam waktu singkat. Proses bookingnya simpel banget",
+      "KosGue membantu saya menemukan kos dekat kampus dalam waktu singkat. Proses bookingnya simpel banget",
   },
   {
-    name: "Anisa Putri",
-    role: "Mahasiswi",
+    name: "Cristoval",
+    role: "Owner PopDrink Go",
     message:
       "Desain kamarnya cantik banget, cocok buat produktif dan istirahat. Admin kos sangat responsif.",
   },
   {
-    name: "Rio Pratama",
-    role: "Software Engineer",
+    name: "Mas Amba",
+    role: "Influencer Terkenal",
     message:
-      "Aplikasi ini bikin hunting kos jadi seru. Saya bisa lihat review, fasilitas, sampai simulasi biaya sekaligus.",
+      "Aplikasi ini bikin hunting kos jadi seru. Saya bisa lihat review, fasilitas, dan juga adminnya baik.",
   },
 ];
 
 function Home() {
-  const { isAuthenticated, getKosList } = useAuth();
-  
-  // Combine default kosList with user-added kos
-  const allKosList = useMemo(() => {
-    const userAddedKos = getKosList ? getKosList() : [];
-    return [...kosList, ...userAddedKos];
-  }, [getKosList]);
+  const navigate = useNavigate();
+  const [kosList, setKosList] = useState([]);
+  const [filteredKosList, setFilteredKosList] = useState([]);
+  const [topRatedKos, setTopRatedKos] = useState([]);
+  const [user, setUser] = useState(null);
+  const [searchCity, setSearchCity] = useState("");
+  const [searchPrice, setSearchPrice] = useState("");
+  const [showOwnerForm, setShowOwnerForm] = useState(false);
+  const [ownerFullName, setOwnerFullName] = useState("");
+  const [businessNumber, setBusinessNumber] = useState("");
+  const [ktpNumber, setKtpNumber] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const fetchData = async () => {
+      try {
+        const data = await getKosList();
+        setKosList(data);
+        setFilteredKosList(data);
+
+        // Get top 9 kos by rating
+        const sortedByRating = [...data].sort((a, b) => {
+          const ratingA = parseFloat(a.rating || 0);
+          const ratingB = parseFloat(b.rating || 0);
+          return ratingB - ratingA;
+        });
+        setTopRatedKos(sortedByRating.slice(0, 9));
+      } catch (error) {
+        console.error("Error fetching kos list:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    window.location.reload();
+  };
+
+  const handleOpenOwnerForm = () => {
+    setOwnerFullName(user?.username || "");
+    setBusinessNumber("");
+    setKtpNumber("");
+    setShowOwnerForm(true);
+  };
+
+  const handleSubmitOwnerForm = async (e) => {
+    e.preventDefault();
+
+    if (!ownerFullName || !businessNumber || !ktpNumber) {
+      showError(
+        "Data belum lengkap",
+        "Nama lengkap, nomor bisnis, dan nomor KTP wajib diisi."
+      );
+      return;
+    }
+
+    try {
+      // Hanya validasi bahwa semua field terisi,
+      // data tidak disimpan ke mana pun, langsung upgrade ke owner
+      await upgradeToOwner();
+      const newUser = { ...user, role: "owner" };
+      localStorage.setItem("user", JSON.stringify(newUser));
+      setUser(newUser);
+      setShowOwnerForm(false);
+      showSuccess("Berhasil!", "Selamat! Anda sekarang adalah Juragan Kos.");
+    } catch (error) {
+      console.error("Error upgrading to owner:", error);
+      showError("Gagal", "Gagal upgrade ke owner: " + error.message);
+    }
+  };
+
+  const handleSearch = () => {
+    // Navigate to all-kos page with search parameters
+    const params = new URLSearchParams();
+    if (searchCity) {
+      params.set("city", searchCity);
+    }
+    if (searchPrice) {
+      params.set("price", searchPrice);
+    }
+
+    const queryString = params.toString();
+    navigate(`/all-kos${queryString ? `?${queryString}` : ""}`);
+  };
 
   return (
     <div className="min-h-screen bg-cream font-sans text-dark">
@@ -79,8 +166,42 @@ function Home() {
               </a>
             </div>
             <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <UserMenu />
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-white/90 font-medium">
+                    Halo, {user.username}
+                  </span>
+                  {user.role === "admin" && (
+                    <Link
+                      to="/admin"
+                      className="text-sm font-medium text-gold hover:text-white transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+                  {user.role === "owner" && (
+                    <Link
+                      to="/owner"
+                      className="text-sm font-medium text-gold hover:text-white transition-colors"
+                    >
+                      Owner Dashboard
+                    </Link>
+                  )}
+                  {user.role === "user" && (
+                    <button
+                      onClick={handleOpenOwnerForm}
+                      className="text-sm font-medium text-gold hover:text-white transition-colors"
+                    >
+                      Jadi Juragan Kos
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+                  >
+                    Keluar
+                  </button>
+                </div>
               ) : (
                 <>
                   <Link
@@ -104,7 +225,7 @@ function Home() {
         <div className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col justify-center">
           <div className="absolute inset-0 z-0">
             <img
-              src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1500&q=80"
+              src="/heroImage.webp"
               alt="Hero Background"
               className="w-full h-full object-cover"
             />
@@ -117,54 +238,65 @@ function Home() {
                 #SeriusNyariKos
               </span>
               <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight text-white leading-[1.1] mb-8">
-                Temukan ruang tinggal terbaik dengan standar hotel,
+                Temukan Kos Idaman Sesuai Budget dan Lokasi Favoritmu,
                 <span className="text-gold block"> kosnya KosGue.</span>
               </h1>
               <p className="text-xl text-white/80 leading-relaxed max-w-2xl mb-12">
-                Dari kamar eksklusif hingga kos harian yang hangat, semua kurasi
-                kami hadir dengan fasilitas moderen, interior estetis, dan
-                kehangatan seperti rumah sendiri.
+                Akses puluhan pilihan kos dari berbagai pemilik properti di satu
+                tempat. Bandingkan harga, cek fasilitas lengkap, dan temukan
+                hunian paling nyaman tanpa perlu survei keliling kota.
               </p>
 
-              <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl shadow-black/20 grid md:grid-cols-4 gap-4 items-end">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
+              <div className="bg-white p-3 md:p-4 rounded-xl shadow-xl shadow-black/20 grid md:grid-cols-3 gap-3 items-end">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
                     Kota
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Masukkan kota"
-                    className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
-                    Tanggal masuk
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted uppercase tracking-wider">
-                    Anggaran
-                  </label>
-                  <select className="w-full p-3 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark">
-                    <option>&lt; Rp1.500.000</option>
-                    <option>Rp1.500.000 - Rp2.000.000</option>
-                    <option>&gt; Rp2.000.000</option>
+                  <select
+                    value={searchCity}
+                    onChange={(e) => setSearchCity(e.target.value)}
+                    className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  >
+                    <option value="">Pilih Kota</option>
+                    {CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <button className="w-full p-3 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors">
-                  Cari Kos
-                </button>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                    Budget
+                  </label>
+                  <select
+                    value={searchPrice}
+                    onChange={(e) => setSearchPrice(e.target.value)}
+                    className="w-full p-2.5 bg-cream rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  >
+                    <option value="">Semua Harga</option>
+                    <option value="<1.5">&lt; Rp1.500.000</option>
+                    <option value="1.5-2">Rp1.500.000 - Rp2.000.000</option>
+                    <option value=">2">&gt; Rp2.000.000</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-wider">
+                    Tunggu apa lagi
+                  </label>
+                  <button
+                    onClick={handleSearch}
+                    className="w-full p-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-[#c5a575] transition-colors text-sm"
+                  >
+                    Cari Kos
+                  </button>
+                </div>
               </div>
 
               <div className="mt-16 flex items-center gap-12 border-t border-white/10 pt-8">
                 <div>
                   <p className="text-3xl font-serif font-bold text-white">
-                    230+
+                    12+
                   </p>
                   <p className="text-sm text-white/60 mt-1">
                     Kos terverifikasi
@@ -177,9 +309,7 @@ function Home() {
                   <p className="text-sm text-white/60 mt-1">Rating penghuni</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-serif font-bold text-white">
-                    15+
-                  </p>
+                  <p className="text-3xl font-serif font-bold text-white">4+</p>
                   <p className="text-sm text-white/60 mt-1">Kota populer</p>
                 </div>
               </div>
@@ -193,7 +323,7 @@ function Home() {
           <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
             <div className="aspect-square rounded-3xl bg-white overflow-hidden relative shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
+                src="/aboutImage.webp"
                 alt="Interior Kos"
                 className="w-full h-full object-cover"
               />
@@ -203,19 +333,20 @@ function Home() {
                 Tentang KosGue
               </span>
               <h2 className="text-4xl font-serif font-bold text-dark mt-4 mb-6">
-                Kurasi kos dengan rasa premium untuk gaya hidup modern.
+                Solusi praktis temukan hunian nyaman dalam satu genggaman.
               </h2>
               <p className="text-lg text-muted leading-relaxed mb-8">
-                Tim kami mengunjungi langsung setiap kos untuk memastikan
-                kenyamanan, keamanan, serta estetika interior yang membuatmu
-                betah. Pilih tipe kamar, cek fasilitas, dan pesan langsung dari
-                satu aplikasi.
+                Kami menghubungkan pencari kos dengan ratusan pemilik properti
+                terpercaya. Tak perlu lagi survei keliling kota, cukup gunakan
+                fitur filter canggih kami untuk menemukan lokasi, harga, dan
+                fasilitas yang paling pas dengan kebutuhanmu. Hemat waktu,
+                tenaga, dan biaya.
               </p>
               <ul className="space-y-4">
                 {[
-                  "Interior hangat bernuansa earth tone.",
-                  "Wi-Fi kencang, area komunal, dan layanan cleaning.",
-                  "CS personal yang siap membantu 24/7.",
+                  "Foto dan deskripsi lengkap langsung dari pemilik kos.",
+                  "Filter pencarian detail: lokasi, harga, hingga fasilitas khusus.",
+                  "Kontak langsung dengan pemilik tanpa perantara.",
                 ].map((item, i) => (
                   <li
                     key={i}
@@ -253,52 +384,64 @@ function Home() {
                   Referensi hunian favorit minggu ini.
                 </h2>
               </div>
-              <button className="hidden md:block text-gold font-bold hover:text-[#c5a575] transition-colors">
+              <Link
+                to="/all-kos"
+                className="hidden md:block text-gold font-bold hover:text-[#c5a575] transition-colors"
+              >
                 Lihat semua &rarr;
-              </button>
+              </Link>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {allKosList.map((item) => (
-                <article
-                  key={item.name}
-                  className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="relative aspect-4/3 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
-                      {item.rating} ★
+              {topRatedKos.length > 0 ? (
+                topRatedKos.map((item) => (
+                  <article
+                    key={item.slug || item.name}
+                    className="group bg-cream rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                  >
+                    <div className="relative aspect-4/3 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-dark shadow-sm">
+                        {item.rating || 0} ★
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-sm font-medium text-muted mb-2">
-                      {item.city}
-                    </p>
-                    <h3 className="text-xl font-serif font-bold text-dark mb-2 group-hover:text-gold transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-gold font-bold mb-6">
-                      {formatPrice(item.price)}
-                    </p>
-                    <Link
-                      to={`/kos/${item.slug}`}
-                      className="block w-full py-3 text-center bg-white text-dark font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
-                    >
-                      Detail Kos
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                    <div className="p-6">
+                      <p className="text-sm font-medium text-muted mb-2">
+                        {item.city}
+                      </p>
+                      <h3 className="text-xl font-serif font-bold text-dark mb-2 group-hover:text-gold transition-colors">
+                        {item.name}
+                      </h3>
+                      <p className="text-gold font-bold mb-6">{item.price}</p>
+                      <Link
+                        to={`/kos/${item.slug}`}
+                        className="block w-full py-3 text-center bg-white text-dark font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+                      >
+                        Detail Kos
+                      </Link>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-xl text-muted">
+                    Belum ada kos yang tersedia.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="mt-12 text-center md:hidden">
-              <button className="text-gold font-bold hover:text-[#c5a575] transition-colors">
+              <Link
+                to="/all-kos"
+                className="text-gold font-bold hover:text-[#c5a575] transition-colors"
+              >
                 Lihat semua &rarr;
-              </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -306,10 +449,10 @@ function Home() {
         <section id="fasilitas" className="py-24 bg-dark text-white">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <span className="text-gold font-bold tracking-wide uppercase text-sm">
-              Fasilitas Andalan
+              Cari yang kamu butuhkan
             </span>
             <h2 className="text-3xl md:text-4xl font-serif font-bold mt-3 mb-16">
-              Kami pastikan setiap kos lengkap dan siap huni.
+              Lengkap atau Sederhana? Kamu yang Tentukan Pilihannya.
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {facilities.map((item) => (
@@ -336,7 +479,7 @@ function Home() {
                 Cerita Penghuni
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-dark mt-3">
-                Testimoni hangat dari komunitas KosGue.
+                Testimoni hangat dari pengguna KosGue.
               </h2>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -369,19 +512,25 @@ function Home() {
               Siap pindah?
             </span>
             <h2 className="text-4xl md:text-5xl font-serif font-bold mt-4 mb-6">
-              Tinggal pilih kos, kami bantu urus sisanya.
+              Jangan tunda lagi, temukan kos impianmu sekarang.
             </h2>
             <p className="text-xl text-dark/80 max-w-2xl mx-auto mb-12">
-              Hubungi konsultan KosGue dan dapatkan rekomendasi personal sesuai
-              gaya hidup, budget, dan lokasi impianmu.
+              Akses ratusan data kos secara gratis, bandingkan fasilitasnya, dan
+              hubungi pemilik langsung tanpa perantara.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 bg-dark text-white font-bold rounded-full hover:bg-black transition-colors shadow-lg">
-                Hubungi Konsultan
-              </button>
-              <button className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark">
+              <Link
+                to="/register"
+                className="w-full sm:w-auto px-8 py-4 bg-dark text-white font-bold rounded-full hover:bg-black transition-colors shadow-lg text-center inline-block"
+              >
+                Buat Akun Gratis
+              </Link>
+              <Link
+                to="/all-kos"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent text-dark font-bold rounded-full hover:bg-white/20 transition-colors border border-dark text-center inline-block"
+              >
                 Eksplor semua kos
-              </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -403,6 +552,72 @@ function Home() {
           </div>
         </div>
       </footer>
+
+      {showOwnerForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-xl font-serif font-bold mb-4 text-dark">
+              Daftar Jadi Juragan Kos
+            </h2>
+            <p className="text-sm text-muted mb-4">
+              Lengkapi data berikut untuk mendaftar sebagai pemilik kos.
+            </p>
+            <form onSubmit={handleSubmitOwnerForm} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  value={ownerFullName}
+                  onChange={(e) => setOwnerFullName(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nama lengkap sesuai KTP"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nomor Telepon Bisnis
+                </label>
+                <input
+                  type="text"
+                  value={businessNumber}
+                  onChange={(e) => setBusinessNumber(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nomor telepon bisnis"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1">
+                  Nomor KTP
+                </label>
+                <input
+                  type="text"
+                  value={ktpNumber}
+                  onChange={(e) => setKtpNumber(e.target.value)}
+                  className="w-full p-2.5 bg-cream rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 text-dark"
+                  placeholder="Masukkan nomor KTP"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowOwnerForm(false)}
+                  className="px-4 py-2 text-sm font-medium text-muted hover:text-dark transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+                >
+                  Simpan & Jadi Juragan Kos
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

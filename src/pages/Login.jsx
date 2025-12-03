@@ -1,30 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import UserMenu from "../components/UserMenu";
 import { useState } from "react";
+import { login } from "../services/api";
+import { showError } from "../utils/sweetAlert";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
-    const result = login(formData.email, formData.password);
-    
-    if (result.success) {
-      navigate("/");
-    } else {
-      setError(result.message);
-    }
-  };
+    try {
+      const data = await login(email, password);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Clear error when user types
+      if (data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message);
+      showError("Login Gagal", err.message);
+    }
   };
 
   return (
@@ -55,24 +56,18 @@ function Login() {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <UserMenu />
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-sm font-medium text-white hover:text-gold transition-colors"
-                >
-                  Masuk
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
-                >
-                  Daftar
-                </Link>
-              </>
-            )}
+            <Link
+              to="/login"
+              className="text-sm font-medium text-white hover:text-gold transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2.5 text-sm font-medium text-dark bg-gold rounded-full hover:bg-[#c5a575] transition-colors shadow-lg shadow-gold/20"
+            >
+              Daftar
+            </Link>
           </div>
         </div>
       </nav>
@@ -85,12 +80,11 @@ function Login() {
               Komunitas KosGue
             </span>
             <h1 className="text-4xl font-serif font-bold leading-tight mb-6">
-              Masuk dan lanjutkan pencarian kos impianmu dengan kurasi rekomendasi
-              personal dari kami.
+              Lanjutkan pencarian kos impianmu, semudah belanja online.
             </h1>
             <p className="text-white/80 text-lg leading-relaxed">
-              Simpan favorit, pantau status booking, dan dapatkan akses ke promo
-              penghuni baru. Semua bisa kamu lakukan di satu tempat.
+              Simpan kos favorit, chat langsung dengan pemilik, dan atur jadwal
+              survei lokasi. Semua riwayat pencarianmu tersimpan aman di sini.
             </p>
           </div>
           <div className="relative z-10 text-sm text-white/60">
@@ -118,7 +112,7 @@ function Login() {
 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                  <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
                     {error}
                   </div>
                 )}
@@ -126,14 +120,11 @@ function Login() {
                   <label className="text-sm font-bold text-dark">Email</label>
                   <input
                     type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
                     placeholder="nama@email.com"
                     required
-                    className={`w-full p-3 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all ${
-                      error ? "border-red-300" : "border-gray-200"
-                    }`}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
                   />
                 </div>
                 <div className="space-y-2">
@@ -142,11 +133,10 @@ function Login() {
                   </label>
                   <input
                     type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
                     placeholder="••••••••"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
                   />
                 </div>

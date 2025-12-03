@@ -1,31 +1,37 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import "./App.css";
+import "./styles/App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import RegisterOwner from "./pages/RegisterOwner";
-import AddKos from "./pages/AddKos";
 import Detail from "./pages/Detail";
 import Terms from "./pages/Terms";
+import AdminDashboard from "./pages/AdminDashboard";
+import OwnerDashboard from "./pages/OwnerDashboard";
+import KosForm from "./pages/KosForm";
+import AllKos from "./pages/AllKos";
 import ScrollToTop from "./components/ScrollToTop";
-import { AuthProvider } from "./contexts/AuthContext";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/register-owner" element={<RegisterOwner />} />
-          <Route path="/add-kos" element={<AddKos />} />
-          <Route path="/kos/:slug" element={<Detail />} />
-          <Route path="/terms" element={<Terms />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <ScrollToTop />
+      <ScrollToTopButton />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/kos/:slug" element={<Detail />} />
+        <Route path="/all-kos" element={<AllKos />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/kos/new" element={<KosForm />} />
+        <Route path="/admin/kos/edit/:slug" element={<KosForm />} />
+        <Route path="/owner" element={<OwnerDashboard />} />
+        <Route path="/owner/kos/new" element={<KosForm />} />
+        <Route path="/owner/kos/edit/:slug" element={<KosForm />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
